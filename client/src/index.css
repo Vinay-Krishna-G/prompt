@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark Theme Variables (Default) */
+    --bg-primary: 5 8 22;         /* #050816 */
+    --bg-surface: 10 15 28;       /* #0A0F1C */
+    --bg-elevated: 13 17 23;      /* #0D1117 */
+    
+    --text-primary: 255 255 255;
+    --text-muted: 156 163 175;    /* gray-400 */
+    
+    --border-color: 255 255 255;  /* Usage requires opacity like / 0.05 */
+    --accent: 99 102 241;         /* indigo-500 */
+  }
+
+  /* Overwrite to Light Theme */
+  html.light {
+    --bg-primary: 250 250 251;    /* Crisp Off-white */
+    --bg-surface: 255 255 255;    /* Pure white */
+    --bg-elevated: 241 243 245;   /* Soft gray */
+    
+    --text-primary: 9 12 19;      /* Dark Blue-black */
+    --text-muted: 107 114 128;    /* gray-500 */
+    
+    --border-color: 0 0 0;
+    --accent: 79 70 229;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  body {
+    background-color: rgb(var(--bg-primary));
+    color: rgb(var(--text-primary));
+    @apply font-sans overflow-x-hidden transition-colors duration-500 antialiased;
+    line-height: 1.55;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(var(--text-primary) / 0.15);
+    border-radius: 10px;
+    border: 2px solid rgb(var(--bg-primary));
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(var(--text-primary) / 0.25); }
+}
+
+@layer components {
+  /* Minimalist Navigation and Layout utilities */
+  .nav-blur {
+    background-color: rgba(var(--bg-surface) / 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(var(--border-color) / 0.05);
+    @apply transition-all duration-500 ease-premium;
+  }
+
+  .section-contain {
+    @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-14;
+  }
+
+  /* Premium Soft Buttons */
+  .btn-premium {
+    background-color: rgb(var(--text-primary));
+    color: rgb(var(--bg-primary));
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium 
+    shadow-soft-elevation transition-all duration-500 ease-premium 
+    hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer whitespace-nowrap
+    focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)];
+  }
+
+  .btn-premium-outline {
+    background-color: rgba(var(--text-primary) / 0.02);
+    color: rgb(var(--text-primary));
+    border: 1px solid rgba(var(--border-color) / 0.1);
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium 
+    shadow-inner-light transition-all duration-500 ease-premium 
+    hover:bg-opacity-5 hover:border-opacity-20 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
+    focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)];
+  }
+
+  .btn-ghost-minimal {
+    color: rgba(var(--text-primary) / 0.6);
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium 
+    hover:text-opacity-100 hover:bg-white/[0.03] transition-all duration-300 ease-premium cursor-pointer
+    focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)];
+  }
+
+  /* Ultra-Clean Card System */
+  .luxury-card {
+    background-color: rgb(var(--bg-surface));
+    border: 1px solid rgba(var(--border-color) / 0.05);
+    @apply relative overflow-hidden rounded-xl transition-shadow duration-500 ease-premium shadow-sm
+    hover:shadow-[0_16px_40px_-18px_rgba(0,0,0,0.35)];
+  }
+
+  .card-image-container {
+    background-color: rgb(var(--bg-elevated));
+    @apply relative overflow-hidden aspect-[4/5];
+  }
+
+  .card-image-zoom {
+    @apply w-full h-full object-cover transition-transform duration-1000 ease-premium group-hover:scale-105;
+  }
+
+  /* Subtle Typography styling */
+  .heading-cinematic {
+    color: rgb(var(--text-primary));
+    letter-spacing: -0.02em;
+    @apply font-display font-semibold text-balance;
+  }
+
+  .text-body-soft {
+    color: rgba(var(--text-primary) / 0.55);
+    @apply font-light leading-relaxed;
+  }
+
+  /* Faint UI Accents */
+  .badge-minimal {
+    background-color: rgba(var(--text-primary) / 0.05);
+    color: rgba(var(--text-primary) / 0.8);
+    border: 1px solid rgba(var(--border-color) / 0.08);
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium tracking-wide uppercase;
+  }
+
+  .input-minimal {
+    background-color: rgba(var(--bg-elevated) / 0.5);
+    border: 1px solid rgba(var(--border-color) / 0.08);
+    color: rgb(var(--text-primary));
+    @apply w-full rounded-lg px-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:border-opacity-25 transition-all duration-500 ease-premium;
+  }
+
+  /* Syntax/Prompt Box styling */
+  .syntax-box-minimal {
+    background-color: rgb(var(--bg-elevated));
+    border: 1px solid rgba(var(--border-color) / 0.05);
+    color: rgba(var(--text-primary) / 0.9);
+    @apply font-mono text-sm leading-relaxed p-6 rounded-xl shadow-inner-light;
+  }
+
+  /* Masking and Ambient layers */
+  .ambient-overlay {
+    @apply absolute inset-0 pointer-events-none opacity-20 mix-blend-screen bg-mesh-gradient;
+  }
+  
+  .soft-mask-bottom {
+    background: linear-gradient(to bottom, transparent, rgb(var(--bg-primary)));
+  }
+}
+
+@layer utilities {
+  .ease-premium {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+
+  /* Force gpu acceleration for smooth transforms */
+  .gpu {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
