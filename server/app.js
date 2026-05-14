@@ -71,8 +71,9 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
+
 // Data sanitization against NoSQL query injection
-app.use(mongoSanitizeMiddleware());
+//app.use(mongoSanitizeMiddleware());
 
 // Data sanitization against XSS (cross-site scripting)
 app.use(xss());
@@ -91,6 +92,8 @@ app.use(hpp({
 app.use(compression());
 
 // 2) ROUTES
+
+
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'PromptVault API Operational' });
 });
