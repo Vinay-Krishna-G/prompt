@@ -70,4 +70,10 @@ export const env = Object.freeze({
    * becomes `admin` when there are zero admins in the database. Prevents client-supplied roles.
    */
   initialAdminEmail: optionalTrimmed('INITIAL_ADMIN_EMAIL')?.toLowerCase() ?? null,
+
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
 });
