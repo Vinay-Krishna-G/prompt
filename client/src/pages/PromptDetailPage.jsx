@@ -1,15 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowLeft, Heart, Bookmark, BookmarkCheck, Copy, Play,
-  Share2, Download, Calendar, CheckCheck, Disc, Sparkles,
-  Ratio, Sliders, Layers, Palette, Wand2, Shuffle,
-} from 'lucide-react';
-import { PROMPTS } from '../data/mockData';
+import { Disc, Sparkles, Ratio, Sliders, Layers, Palette, Wand2, Shuffle, ArrowLeft, Heart, Bookmark, BookmarkCheck, Copy, Play, Share2, Download, Calendar, CheckCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PromptCard from '../components/PromptCard';
 import ImageWithPlaceholder from '../components/ImageWithPlaceholder';
+import Loader from '../components/Loader';
+import { getPromptBySlug, getPrompts } from '../services/promptService';
 import { EASE_PREMIUM } from '../lib/motion';
 
 const defaultParams = {
@@ -44,21 +41,54 @@ const PromptDetailPage = () => {
   const [remixCopied, setRemixCopied] = useState(false);
   const [heroLoaded, setHeroLoaded] = useState(false);
 
-  const prompt = PROMPTS.find((p) => p.id === id) || PROMPTS[0];
+  const [prompt, setPrompt] = useState(null);
+  const [similarPrompts, setSimilarPrompts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    addRecentlyViewed(prompt.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run when route id changes only
+    const fetchDetail = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getPromptBySlug(id); // id param actually holds the slug
+        setPrompt(data);
+        addRecentlyViewed(data.slug || data._id);
+        
+        // Fetch similar (just fetching a generic list for now)
+        const similarData = await getPrompts({ limit: 4 });
+        setSimilarPrompts(similarData.prompts.filter(p => p._id !== data._id).slice(0, 4));
+      } catch (err) {
+        console.error('Failed to load prompt', err);
+        setError('Failed to load prompt details.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const isSaved = savedPrompts.includes(prompt.id);
-  const isLiked = likedPrompts.includes(prompt.id);
-
   const paramsEntries = useMemo(
-    () => Object.entries(prompt.params || defaultParams),
-    [prompt.params]
+    () => Object.entries(prompt?.params || defaultParams),
+    [prompt?.params]
   );
+
+  if (isLoading) return <Loader fullScreen />;
+  if (error || !prompt) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center">
+        <div>
+          <Disc size={32} className="mx-auto text-red-500/50 mb-4" />
+          <h2 className="text-xl font-medium mb-2">{error || 'Prompt not found'}</h2>
+          <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-white">Go Back</button>
+        </div>
+      </div>
+    );
+  }
+
+  const isSaved = savedPrompts.includes(prompt.slug || prompt._id);
+  const isLiked = likedPrompts.includes(prompt.slug || prompt._id);
 
   const dominantColor = prompt.dominantColor || '#0a0f1c';
 
@@ -78,7 +108,7 @@ const PromptDetailPage = () => {
     <div className="min-h-screen pt-20 pb-28 md:pt-24 md:pb-32 bg-dark-50 relative overflow-hidden">
       <div className="absolute top-0 inset-x-0 h-[min(70vh,720px)] pointer-events-none z-0 overflow-hidden opacity-25">
         <img
-          src={prompt.image}
+          src={prompt.previewImage}
           alt=""
           className="w-full h-full object-cover blur-[100px] scale-110"
         />
@@ -108,14 +138,26 @@ const PromptDetailPage = () => {
             >
               {prompt.type === 'video' ? (
                 <div className="relative aspect-video">
-                  <ImageWithPlaceholder
-                    src={prompt.image}
-                    alt={prompt.title}
-                    dominantColor={dominantColor}
-                    onLoad={() => setHeroLoaded(true)}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/12 transition-colors duration-500 ease-premium">
+                  {prompt.previewVideo ? (
+                    <video
+                      src={prompt.previewVideo}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      onLoadedData={() => setHeroLoaded(true)}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <ImageWithPlaceholder
+                      src={prompt.previewImage}
+                      alt={prompt.title}
+                      dominantColor={dominantColor}
+                      onLoad={() => setHeroLoaded(true)}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/12 transition-colors duration-500 ease-premium pointer-events-none">
                     <div className="w-20 h-20 rounded-full bg-black/35 backdrop-blur-md border border-white/15 flex items-center justify-center text-white transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
                       <Play size={32} className="ml-2 fill-current" />
                     </div>
@@ -124,7 +166,7 @@ const PromptDetailPage = () => {
               ) : (
                 <div className="relative">
                   <ImageWithPlaceholder
-                    src={prompt.image}
+                    src={prompt.previewImage}
                     alt={prompt.title}
                     dominantColor={dominantColor}
                     onLoad={() => setHeroLoaded(true)}
@@ -191,19 +233,23 @@ const PromptDetailPage = () => {
             >
               <div className="mb-10 md:mb-12 border-b border-white/[0.04] pb-10 md:pb-12">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.06] text-xs text-gray-200 font-medium">
-                    {prompt.creator.avatar.charAt(0)}
+                  <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.06] text-xs text-gray-200 font-medium overflow-hidden">
+                    {prompt.creator?.avatar && prompt.creator.avatar.length > 2 ? (
+                      <img src={prompt.creator.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      prompt.creator?.name ? prompt.creator.name.charAt(0).toUpperCase() : 'U'
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-200">{prompt.creator.name}</p>
+                    <p className="text-sm font-medium text-gray-200">{prompt.creator?.name || 'Unknown'}</p>
                     <p className="text-[11px] text-gray-500 uppercase tracking-widest font-medium mt-0.5">
-                      {prompt.categoryName}
+                      {prompt.category || prompt.categoryName}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
-                      onClick={() => toggleLike(prompt.id)}
+                      onClick={() => toggleLike(prompt.slug || prompt._id)}
                       className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-400/90 transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-white/[0.03]"
                     >
                       <Heart size={14} className={isLiked ? 'fill-red-400 text-red-400' : ''} />
@@ -211,7 +257,7 @@ const PromptDetailPage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => toggleSave(prompt.id)}
+                      onClick={() => toggleSave(prompt.slug || prompt._id)}
                       className="p-2.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-gray-300 hover:text-white hover:bg-white/[0.07] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                       aria-label={isSaved ? 'Unsave' : 'Save'}
                     >
@@ -226,7 +272,7 @@ const PromptDetailPage = () => {
                 <div className="flex flex-wrap gap-2 mb-4">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-white/[0.06] text-gray-500">
                     <Calendar size={11} />
-                    {prompt.createdAt}
+                    {new Date(prompt.createdAt).toLocaleDateString()}
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-white/[0.06] text-gray-500">
                     {prompt.type === 'video' ? 'Video template' : 'Image template'}
@@ -243,7 +289,7 @@ const PromptDetailPage = () => {
                   <Disc size={12} className="opacity-45" /> Core template
                 </h3>
                 <div className="relative group syntax-box-minimal bg-dark-200 text-gray-200 p-6 md:p-7 leading-relaxed border border-white/[0.05] rounded-2xl font-mono text-[13px] selection:bg-white/10">
-                  <div className="mb-24 md:mb-28 select-all opacity-90 pr-2">{prompt.prompt}</div>
+                  <div className="mb-24 md:mb-28 select-all opacity-90 pr-2">{prompt.promptText || prompt.prompt}</div>
                   <div className="absolute bottom-4 right-4 left-4 flex flex-wrap gap-2 justify-end">
                     <button
                       type="button"
@@ -312,11 +358,9 @@ const PromptDetailPage = () => {
             <div className="h-px bg-white/[0.05] flex-1 max-w-md hidden md:block" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-7">
-            {PROMPTS.filter((p) => p.id !== prompt.id)
-              .slice(0, 4)
-              .map((p, i) => (
-                <PromptCard key={p.id} prompt={p} index={i} />
-              ))}
+            {similarPrompts.map((p, i) => (
+                <PromptCard key={p._id || p.id} prompt={p} index={i} />
+            ))}
           </div>
         </div>
       </div>

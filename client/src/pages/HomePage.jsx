@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Disc, Command, Search } from 'lucide-react';
 import Masonry from 'react-masonry-css';
 import PromptCard from '../components/PromptCard';
-import { PROMPTS, TRENDING_PROMPTS } from '../data/mockData';
+import Loader from '../components/Loader';
+import { getPrompts } from '../services/promptService';
 import { useApp } from '../context/AppContext';
 
 const fadeInUp = {
@@ -37,12 +39,53 @@ const AmbientBg = () => (
 
 const HomePage = () => {
   const { setCommandPaletteOpen } = useApp();
+  const [prompts, setPrompts] = useState([]);
+  const [trendingPrompts, setTrendingPrompts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const masonryBreakpoints = {
     default: 4,
     1100: 3,
     700: 2,
     500: 1
   };
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        setIsLoading(true);
+        const [promptsData, trendingData] = await Promise.all([
+          getPrompts({ limit: 20 }),
+          getPrompts({ trending: true, limit: 4 })
+        ]);
+        setPrompts(promptsData.prompts);
+        setTrendingPrompts(trendingData.prompts);
+      } catch (err) {
+        console.error('Failed to load prompts', err);
+        setError('Failed to load assets. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchHomeData();
+  }, []);
+
+  if (isLoading) return <Loader fullScreen />;
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center px-6">
+        <div>
+          <Disc size={32} className="mx-auto text-red-500/50 mb-4" />
+          <h2 className="text-xl font-medium mb-2">{error}</h2>
+          <button onClick={() => window.location.reload()} className="text-sm text-gray-500 hover:text-white transition-colors">
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen">
@@ -121,9 +164,13 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7">
-              {TRENDING_PROMPTS.slice(0, 4).map((prompt, idx) => (
-                <PromptCard key={prompt.id} prompt={prompt} index={idx} />
-              ))}
+              {trendingPrompts.length > 0 ? (
+                trendingPrompts.map((prompt, idx) => (
+                  <PromptCard key={prompt._id || prompt.id} prompt={prompt} index={idx} />
+                ))
+              ) : (
+                <div className="col-span-full py-10 text-center text-gray-500 text-sm">No trending prompts available.</div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -162,17 +209,21 @@ const HomePage = () => {
             </div>
           </motion.div>
 
-          <Masonry
-            breakpointCols={masonryBreakpoints}
-            className="flex -ml-7 w-auto"
-            columnClassName="pl-7 bg-clip-padding"
-          >
-            {PROMPTS.map((p, i) => (
-              <div key={p.id} className="mb-8">
-                <PromptCard prompt={p} index={i % 4} />
-              </div>
-            ))}
-          </Masonry>
+          {prompts.length > 0 ? (
+            <Masonry
+              breakpointCols={masonryBreakpoints}
+              className="flex -ml-7 w-auto"
+              columnClassName="pl-7 bg-clip-padding"
+            >
+              {prompts.map((p, i) => (
+                <div key={p._id || p.id} className="mb-8">
+                  <PromptCard prompt={p} index={i % 4} />
+                </div>
+              ))}
+            </Masonry>
+          ) : (
+            <div className="py-20 text-center text-gray-500 text-sm">No prompts found in the vault.</div>
+          )}
         </div>
       </section>
 

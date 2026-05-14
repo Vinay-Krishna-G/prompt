@@ -12,8 +12,8 @@ const PromptCard = ({ prompt, index = 0 }) => {
   const { savedPrompts, likedPrompts, toggleSave, handleCopyPrompt } = useApp();
   const [copied, setCopied] = useState(false);
 
-  const isSaved = savedPrompts.includes(prompt.id);
-  const isLiked = likedPrompts.includes(prompt.id);
+  const isSaved = savedPrompts.includes(prompt.slug || prompt.id);
+  const isLiked = likedPrompts.includes(prompt.slug || prompt.id);
 
   const aspectClass =
     prompt.type === 'video'
@@ -27,7 +27,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
   const onCopy = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    handleCopyPrompt(prompt);
+    handleCopyPrompt({ ...prompt, prompt: prompt.promptText || prompt.prompt });
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -35,7 +35,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
   const onSave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleSave(prompt.id);
+    toggleSave(prompt.slug || prompt.id);
   };
 
   return (
@@ -50,7 +50,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
     >
       <motion.div whileHover={{ y: -3 }} transition={hoverLift} className="will-change-transform">
         <Link
-          to={`/prompt/${prompt.id}`}
+          to={`/prompt/${prompt.slug || prompt.id}`}
           className="group block rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)]"
         >
           <div
@@ -70,7 +70,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
 
             <div className={`relative ${aspectClass} overflow-hidden rounded-t-2xl`}>
               <ImageWithPlaceholder
-                src={prompt.image}
+                src={prompt.previewImage}
                 alt={prompt.title}
                 dominantColor={dominantColor}
                 className="w-full h-full object-cover transform-gpu transition-transform duration-[720ms] ease-premium group-hover:scale-[1.02]"
@@ -121,7 +121,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
               </div>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-[11px] font-normal" style={{ color: 'rgba(var(--text-primary) / 0.48)' }}>
-                  {prompt.categoryName}
+                  {prompt.category || prompt.categoryName}
                 </span>
                 <span className="flex items-center gap-0.5 text-[11px]" style={{ color: 'rgba(var(--text-primary) / 0.48)' }}>
                   <Heart size={10} className={isLiked ? 'fill-red-400 text-red-400' : ''} />
