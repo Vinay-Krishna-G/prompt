@@ -2,11 +2,17 @@ import api from '../lib/api.js';
 
 export const getPrompts = async (params = {}) => {
   const { data } = await api.get('/prompts', { params });
-  return data.data; // Backend wraps response in { success: true, data: { prompts, pagination } }
+  return data.data; // { prompts, pagination }
 };
 
 export const getPromptBySlug = async (slug) => {
   const { data } = await api.get(`/prompts/${slug}`);
+  return data.data;
+};
+
+// Admin: fetch a prompt by MongoDB _id (not slug)
+export const getPromptById = async (id) => {
+  const { data } = await api.get(`/prompts/admin/${id}`);
   return data.data;
 };
 
@@ -20,16 +26,15 @@ export const uploadAsset = async (file) => {
   formData.append('file', file);
 
   const { data } = await api.post('/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 
   return data.data; // { url, publicId, resourceType, format }
 };
 
+// Admin: update a prompt by MongoDB _id
 export const updatePrompt = async (id, promptData) => {
-  const { data } = await api.patch(`/prompts/${id}`, promptData);
+  const { data } = await api.put(`/prompts/admin/${id}`, promptData);
   return data.data;
 };
 
@@ -56,4 +61,9 @@ export const getSavedPrompts = async () => {
 export const getLikedPrompts = async () => {
   const { data } = await api.get('/prompts/user/liked');
   return data.data.prompts;
+};
+
+export const getDashboardStats = async () => {
+  const { data } = await api.get('/prompts/admin/stats');
+  return data.data;
 };

@@ -9,18 +9,23 @@ router
   .get(promptController.getPrompts)
   .post(protect, admin, promptController.createPrompt);
 
+// ── Admin-only routes (must come BEFORE /:slug to avoid collision) ──
+router.get('/admin/stats', protect, admin, promptController.getDashboardStats);
+router.get('/admin/:id', protect, admin, promptController.getPromptById);
+router.put('/admin/:id', protect, admin, promptController.updatePrompt);
+
 // User specific routes
 router.get('/user/saved', protect, promptController.getSavedPrompts);
 router.get('/user/liked', protect, promptController.getLikedPrompts);
 
+// Public slug route
 router.get('/:slug', promptController.getPromptBySlug);
 
-router
-  .route('/:id')
-  .put(protect, admin, promptController.updatePrompt)
-  .delete(protect, admin, promptController.deletePrompt);
-
+// Public-facing like/save toggles (require auth, not admin)
 router.post('/:id/like', protect, promptController.toggleLike);
 router.post('/:id/save', protect, promptController.toggleSave);
+
+// Original /:id routes retained for delete (admin only)
+router.delete('/:id', protect, admin, promptController.deletePrompt);
 
 export default router;

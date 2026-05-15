@@ -90,6 +90,67 @@ export const getPromptBySlug = asyncHandler(async (req, res, next) => {
   return sendSuccess(res, prompt);
 });
 
+// @desc    Get prompt by MongoDB _id (admin only)
+// @route   GET /api/prompts/admin/:id
+// @access  Private/Admin
+export const getPromptById = asyncHandler(async (req, res, next) => {
+  const prompt = await Prompt.findById(req.params.id).populate('creator', 'name avatar');
+
+  if (!prompt) {
+    return next(new AppError('Prompt not found', 404));
+  }
+
+  return sendSuccess(res, prompt);
+});
+
+// @desc    Get real dashboard analytics
+// @route   GET /api/prompts/admin/stats
+// @access  Private/Admin
+export const getDashboardStats = asyncHandler(async (req, res, next) => {
+  const User = (await import('../models/User.js')).default;
+  const Category = (await import('../models/Category.js')).default;
+  const AIModel = (await import('../models/AIModel.js')).default;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [
+    totalPrompts,
+    totalUsers,
+    totalCategories,
+    totalAIModels,
+    likesAgg,
+    copiesAgg,
+    viewsAgg,
+    todayPrompts,
+    todayUsers,
+  ] = await Promise.all([
+    Prompt.countDocuments(),
+    User.countDocuments(),
+    Category.countDocuments(),
+    AIModel.countDocuments(),
+    Prompt.aggregate([{ $group: { _id: null, total: { $sum: '$likes' } } }]),
+    Prompt.aggregate([{ $group: { _id: null, total: { $sum: '$copies' } } }]),
+    Prompt.aggregate([{ $group: { _id: null, total: { $sum: '$views' } } }]),
+    Prompt.countDocuments({ createdAt: { $gte: today } }),
+    User.countDocuments({ createdAt: { $gte: today } }),
+  ]);
+
+  return sendSuccess(res, {
+    totalPrompts,
+    totalUsers,
+    totalCategories,
+    totalAIModels,
+    totalLikes: likesAgg[0]?.total ?? 0,
+    totalCopies: copiesAgg[0]?.total ?? 0,
+    totalViews: viewsAgg[0]?.total ?? 0,
+    todayPrompts,
+    todayUsers,
+    // Note: copies/likes today would require a separate analytics collection
+    // For now we'll return the growth in content
+  });
+});
+
 // @desc    Update prompt
 // @route   PUT /api/prompts/:id
 // @access  Private/Admin

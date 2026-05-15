@@ -68,6 +68,20 @@ const promptSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    description: {
+      type: String,
+      trim: true,
+    },
+    dominantColor: {
+      type: String,
+      default: '#0a0f1c',
+    },
+    config: {
+      aspectRatio: { type: String, trim: true },
+      chaos: { type: String, trim: true },
+      quality: { type: String, trim: true },
+      style: { type: String, trim: true },
+    },
   },
   {
     timestamps: true,

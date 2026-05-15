@@ -255,7 +255,7 @@ const SearchPage = () => {
                           : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                       }`}
                     >
-                      <span className="text-base">{cat.icon || '📁'}</span>
+                      {cat.icon && <span className="text-base">{cat.icon}</span>}
                       {cat.name}
                     </button>
                   ))}

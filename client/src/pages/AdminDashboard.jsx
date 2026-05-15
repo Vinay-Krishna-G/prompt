@@ -22,8 +22,8 @@ import {
   Edit2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { getPrompts, deletePrompt, createPrompt, uploadAsset } from '../services/promptService';
-import { getCategories, createCategory, deleteCategory } from '../services/categoryService';
+import { getPrompts, deletePrompt, createPrompt, uploadAsset, getDashboardStats } from '../services/promptService';
+import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService';
 import { getAIModels, createAIModel, deleteAIModel } from '../services/aiModelService';
 import { getAllUsers, updateUserRole } from '../services/userService';
 
@@ -131,9 +131,11 @@ const AdminDashboard = () => {
   const [categories, setCategories] = useState([]);
   const [aiModels, setAiModels] = useState([]);
   const [users, setUsers] = useState([]);
+  const [dashStats, setDashStats] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryIcon, setNewCategoryIcon] = useState('📁');
+  const [newCategoryIcon, setNewCategoryIcon] = useState('');
   const [newCategoryImage, setNewCategoryImage] = useState('');
+  const [editingCategory, setEditingCategory] = useState(null); // { _id, name, icon, image }
   const [newAIModelName, setNewAIModelName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -141,10 +143,17 @@ const AdminDashboard = () => {
   const [formData, setFormData] = useState({
     title: '',
     promptText: '',
+    description: '',
     category: '',
     type: 'image',
     tags: '',
     aiModel: 'Midjourney v6.1',
+    config: {
+      aspectRatio: '',
+      chaos: '',
+      quality: '',
+      style: '',
+    },
   });
   const [mediaFile, setMediaFile] = useState(null);
 
@@ -205,8 +214,12 @@ const AdminDashboard = () => {
   const fetchRecent = async () => {
     try {
       setIsLoading(true);
-      const res = await getPrompts({ limit: 6, sort: '-createdAt' });
+      const [res, stats] = await Promise.all([
+        getPrompts({ limit: 6, sort: '-createdAt' }),
+        getDashboardStats().catch(() => null),
+      ]);
       setRecentPrompts(res.prompts);
+      if (stats) setDashStats(stats);
     } catch (err) {
       console.error(err);
     } finally {
@@ -247,13 +260,33 @@ const AdminDashboard = () => {
     e.preventDefault();
     if (!newCategoryName) return;
     try {
-      await createCategory({ name: newCategoryName, icon: newCategoryIcon, image: newCategoryImage || undefined });
+      await createCategory({
+        name: newCategoryName,
+        icon: newCategoryIcon || undefined,
+        image: newCategoryImage || undefined,
+      });
       setNewCategoryName('');
-      setNewCategoryIcon('📁');
+      setNewCategoryIcon('');
       setNewCategoryImage('');
       fetchCategories();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create category');
+    }
+  };
+
+  const handleUpdateCategory = async (e) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+    try {
+      await updateCategory(editingCategory._id, {
+        name: editingCategory.name,
+        icon: editingCategory.icon || undefined,
+        image: editingCategory.image || undefined,
+      });
+      setEditingCategory(null);
+      fetchCategories();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update category');
     }
   };
 
@@ -318,6 +351,7 @@ const AdminDashboard = () => {
       const newPrompt = {
         title: formData.title,
         promptText: formData.promptText,
+        description: formData.description || undefined,
         category: formData.category,
         type: formData.type,
         tags: formData.tags
@@ -327,6 +361,12 @@ const AdminDashboard = () => {
         aiModel: formData.aiModel,
         previewImage: isVideo ? assetRes.url.replace(/\.[^/.]+$/, '.jpg') : assetRes.url,
         previewVideo: isVideo ? assetRes.url : undefined,
+        config: {
+          aspectRatio: formData.config.aspectRatio || undefined,
+          chaos: formData.config.chaos || undefined,
+          quality: formData.config.quality || undefined,
+          style: formData.config.style || undefined,
+        },
       };
 
       await createPrompt(newPrompt);
@@ -334,10 +374,17 @@ const AdminDashboard = () => {
       setFormData({
         title: '',
         promptText: '',
-        category: 'Cinematic',
+        description: '',
+        category: categories[0]?.name || '',
         type: 'image',
         tags: '',
-        aiModel: 'Midjourney v6.1',
+        aiModel: aiModels[0]?.name || 'Midjourney v6.1',
+        config: {
+          aspectRatio: '',
+          chaos: '',
+          quality: '',
+          style: '',
+        },
       });
       setMediaFile(null);
       setActive('dashboard');
@@ -355,29 +402,29 @@ const AdminDashboard = () => {
   const stats = [
     {
       label: 'Total Prompts',
-      value: '24,891',
-      change: 12.3,
+      value: dashStats ? dashStats.totalPrompts.toLocaleString() : '—',
+      change: 0,
       icon: <Zap size={18} className="text-primary" />,
       color: 'bg-primary-500/20',
     },
     {
       label: 'Total Users',
-      value: '128,430',
-      change: 23.1,
+      value: dashStats ? dashStats.totalUsers.toLocaleString() : '—',
+      change: 0,
       icon: <Users size={18} className="text-primary" />,
       color: 'bg-secondary-500/20',
     },
     {
-      label: 'Total Copies',
-      value: '982,341',
-      change: 34.2,
-      icon: <Copy size={18} className="text-primary" />,
+      label: 'Categories',
+      value: dashStats ? dashStats.totalCategories.toLocaleString() : '—',
+      change: 0,
+      icon: <Tag size={18} className="text-primary" />,
       color: 'bg-accent-500/20',
     },
     {
-      label: 'Monthly Visits',
-      value: '2.89M',
-      change: 18.7,
+      label: 'Total Views',
+      value: dashStats ? dashStats.totalViews.toLocaleString() : '—',
+      change: 0,
       icon: <Eye size={18} className="text-primary" />,
       color: 'bg-green-500/20',
     },
@@ -499,10 +546,10 @@ const AdminDashboard = () => {
                   <h3 className="font-semibold text-primary mb-4">Today</h3>
                   <div className="space-y-4">
                     {[
-                      { label: 'New Prompts', value: '127', color: 'text-indigo-400' },
-                      { label: 'New Users', value: '843', color: 'text-emerald-400' },
-                      { label: 'Copies Made', value: '3,241', color: 'text-amber-400' },
-                      { label: 'Revenue Est.', value: '$1,840', color: 'text-yellow-400' },
+                      { label: 'New Prompts', value: dashStats?.todayPrompts || 0, color: 'text-indigo-400' },
+                      { label: 'New Users', value: dashStats?.todayUsers || 0, color: 'text-emerald-400' },
+                      { label: 'AI Models', value: dashStats?.totalAIModels || 0, color: 'text-amber-400' },
+                      { label: 'Total Copies', value: dashStats?.totalCopies?.toLocaleString() || 0, color: 'text-yellow-400' },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between">
                         <span className="text-primary/50 text-sm">{item.label}</span>
@@ -786,6 +833,17 @@ const AdminDashboard = () => {
                         placeholder="Enter the full prompt text..."
                       />
                     </div>
+                    <div>
+                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
+                        Description (optional)
+                      </label>
+                      <textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        className="input-minimal min-h-[80px] resize-y text-sm"
+                        placeholder="Brief description of what this prompt creates..."
+                      />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
@@ -856,6 +914,34 @@ const AdminDashboard = () => {
                         )}
                       </select>
                     </div>
+
+                    {/* Generation Config */}
+                    <div>
+                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-3 block">
+                        Generation Config (optional)
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { key: 'aspectRatio', label: 'Aspect Ratio', placeholder: 'e.g. 16:9' },
+                          { key: 'chaos', label: 'Chaos', placeholder: 'e.g. Low' },
+                          { key: 'quality', label: 'Quality', placeholder: 'e.g. Max' },
+                          { key: 'style', label: 'Style', placeholder: 'e.g. Raw' },
+                        ].map(({ key, label, placeholder }) => (
+                          <div key={key}>
+                            <label className="text-[10px] text-primary/40 uppercase tracking-wider mb-1 block">{label}</label>
+                            <input
+                              value={formData.config[key]}
+                              onChange={(e) => setFormData({
+                                ...formData,
+                                config: { ...formData.config, [key]: e.target.value }
+                              })}
+                              className="input-minimal text-sm"
+                              placeholder={placeholder}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                     <button
                       type="submit"
                       disabled={isUploading}
@@ -903,13 +989,13 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        Icon (emoji)
+                        Icon (emoji) <span className="normal-case">– optional</span>
                       </label>
                       <input
                         value={newCategoryIcon}
                         onChange={(e) => setNewCategoryIcon(e.target.value)}
                         className="input-minimal"
-                        placeholder="📁"
+                        placeholder="e.g. 🌟, 🎭, 📸"
                         maxLength={4}
                       />
                     </div>
@@ -952,24 +1038,88 @@ const AdminDashboard = () => {
                       </tr>
                     ) : (
                       categories.map((c) => (
-                        <tr
-                          key={c._id}
-                          className="border-b border-primary/5 hover:bg-primary/2 transition-colors"
-                        >
-                          <td className="px-6 py-4 text-sm font-medium text-primary/90">
-                            <span className="mr-2">{c.icon || '📁'}</span>{c.name}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-primary/50">{c.slug}</td>
-                          <td className="px-6 py-4 text-sm text-primary/50">{c.promptCount ?? 0}</td>
-                          <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => handleDeleteCategory(c._id)}
-                              className="p-1.5 rounded-lg hover:bg-red-500/10 text-primary/30 hover:text-red-400 transition-all"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </td>
-                        </tr>
+                        <>
+                          <tr
+                            key={c._id}
+                            className="border-b border-primary/5 hover:bg-primary/2 transition-colors"
+                          >
+                            <td className="px-6 py-4 text-sm font-medium text-primary/90">
+                              {c.icon && <span className="mr-2">{c.icon}</span>}{c.name}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-primary/50">{c.slug}</td>
+                            <td className="px-6 py-4 text-sm text-primary/50">{c.promptCount ?? 0}</td>
+                            <td className="px-6 py-4 text-right flex items-center justify-end gap-1">
+                              <button
+                                onClick={() =>
+                                  setEditingCategory(
+                                    editingCategory?._id === c._id
+                                      ? null
+                                      : { _id: c._id, name: c.name, icon: c.icon || '', image: c.image || '' },
+                                  )
+                                }
+                                className="p-1.5 rounded-lg hover:bg-primary/10 text-primary/30 hover:text-primary transition-all"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCategory(c._id)}
+                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-primary/30 hover:text-red-400 transition-all"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                          </tr>
+                          {editingCategory?._id === c._id && (
+                            <tr key={`edit-${c._id}`} className="border-b border-primary/5 bg-primary/[0.02]">
+                              <td colSpan="4" className="px-6 py-4">
+                                <form onSubmit={handleUpdateCategory} className="space-y-3">
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <label className="text-[11px] text-primary/40 uppercase tracking-widest mb-1.5 block">Name</label>
+                                      <input
+                                        required
+                                        value={editingCategory.name}
+                                        onChange={(e) => setEditingCategory((prev) => ({ ...prev, name: e.target.value }))}
+                                        className="input-minimal text-sm"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-[11px] text-primary/40 uppercase tracking-widest mb-1.5 block">Icon (optional)</label>
+                                      <input
+                                        value={editingCategory.icon}
+                                        onChange={(e) => setEditingCategory((prev) => ({ ...prev, icon: e.target.value }))}
+                                        className="input-minimal text-sm"
+                                        placeholder="emoji"
+                                        maxLength={4}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] text-primary/40 uppercase tracking-widest mb-1.5 block">Banner Image URL</label>
+                                    <input
+                                      value={editingCategory.image}
+                                      onChange={(e) => setEditingCategory((prev) => ({ ...prev, image: e.target.value }))}
+                                      className="input-minimal text-sm"
+                                      placeholder="https://res.cloudinary.com/..."
+                                    />
+                                  </div>
+                                  <div className="flex gap-2 justify-end">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingCategory(null)}
+                                      className="text-xs text-primary/50 hover:text-primary px-4 py-2 transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button type="submit" className="btn-primary py-2 px-5 text-sm">
+                                      Save Changes
+                                    </button>
+                                  </div>
+                                </form>
+                              </td>
+                            </tr>
+                          )}
+                        </>
                       ))
                     )}
                   </tbody>

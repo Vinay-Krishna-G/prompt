@@ -15,7 +15,7 @@ const CategoryCard = ({ category, index = 0 }) => {
   const slug = category.slug || category.id;
   const bannerSrc = category.image;
   const itemCount = category.promptCount ?? category.count ?? 0;
-  const icon = category.icon || '📁';
+  const icon = category.icon;
   const gradientFallback = PLACEHOLDER_GRADIENT[index % PLACEHOLDER_GRADIENT.length];
 
   return (
@@ -23,41 +23,47 @@ const CategoryCard = ({ category, index = 0 }) => {
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: index * 0.02 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: index * 0.01 }}
       className="group"
     >
       <Link
         to={`/categories/${slug}`}
-        className="block relative overflow-hidden rounded-xl border shadow-soft-elevation bg-dark-100"
-        style={{ borderColor: 'rgba(var(--border-color) / 0.05)' }}
+        className="block relative overflow-hidden rounded-xl border bg-dark-100 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20"
+        style={{ borderColor: 'rgba(var(--text-primary) / 0.05)' }}
       >
-        {/* Background Image Stack */}
+        {/* Horizontal Container (2.2:1 Aspect) */}
         <div
-          className="relative aspect-[4/3] w-full overflow-hidden bg-dark-200"
+          className="relative aspect-[2.2/1] w-full overflow-hidden bg-dark-200 flex items-center"
           style={!bannerSrc ? { background: gradientFallback } : {}}
         >
           {bannerSrc && (
             <img
               src={bannerSrc}
               alt={category.name}
-              className="w-full h-full object-cover saturate-50 contrast-125 duration-1000 ease-premium group-hover:scale-105 group-hover:saturate-100"
+              className="absolute inset-0 w-full h-full object-cover saturate-[0.7] contrast-[1.1] duration-1000 ease-premium group-hover:scale-110 group-hover:saturate-100 transition-all"
             />
           )}
 
-          {/* Muted Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-50/90 via-dark-50/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-700" />
-        </div>
-
-        {/* Text Overlay & Details */}
-        <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between">
-          <div>
-            <span className="text-[18px] opacity-80 block mb-1">{icon}</span>
-            <h3 className="text-[14px] font-medium text-primary tracking-tight">{category.name}</h3>
-          </div>
-          <div className="text-right">
-            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-              {itemCount} {itemCount === 1 ? 'item' : 'items'}
-            </span>
+          {/* Editorial Overlay Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-dark-50/90 via-dark-50/40 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-70" />
+          
+          {/* Content Container */}
+          <div className="relative z-10 px-4 flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              {icon && (
+                <span className="text-lg drop-shadow-md">{icon}</span>
+              )}
+              <h3 className="text-[14px] font-bold text-primary tracking-tight group-hover:text-primary-400 transition-colors drop-shadow-sm">
+                {category.name}
+              </h3>
+            </div>
+            
+            {/* Subtle Hover-only count */}
+            <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-2 group-hover:translate-x-0">
+               <span className="text-[10px] font-mono text-primary/40 uppercase tracking-tighter bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10 backdrop-blur-sm">
+                {itemCount}
+              </span>
+            </div>
           </div>
         </div>
       </Link>

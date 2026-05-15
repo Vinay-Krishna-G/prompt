@@ -28,12 +28,8 @@ import Loader from '../components/Loader';
 import { getPromptBySlug, getPrompts } from '../services/promptService';
 import { EASE_PREMIUM } from '../lib/motion';
 
-const defaultParams = {
-  'Aspect Ratio': '16:9',
-  Chaos: 'Low',
-  Quality: 'Max',
-  Style: 'Raw',
-};
+
+
 
 const paramIcon = (key) => {
   const k = key.toLowerCase();
@@ -87,10 +83,16 @@ const PromptDetailPage = () => {
     fetchDetail();
   }, [id]);
 
-  const paramsEntries = useMemo(
-    () => Object.entries(prompt?.params || defaultParams),
-    [prompt?.params],
-  );
+  const paramsEntries = useMemo(() => {
+    const cfg = prompt?.config || {};
+    const entries = [
+      ['Aspect Ratio', cfg.aspectRatio],
+      ['Chaos', cfg.chaos],
+      ['Quality', cfg.quality],
+      ['Style', cfg.style],
+    ].filter(([, val]) => val && val.trim());
+    return entries;
+  }, [prompt?.config]);
 
   if (isLoading) return <Loader fullScreen />;
   if (error || !prompt) {
@@ -310,13 +312,14 @@ const PromptDetailPage = () => {
                     {prompt.type === 'video' ? 'Video template' : 'Image template'}
                   </span>
                 </div>
-                <p
-                  className="text-[15px] leading-relaxed"
-                  style={{ color: 'rgba(var(--text-primary) / 0.52)' }}
-                >
-                  High-fidelity neural generation tailored for visual engineers. Parameters below
-                  match this vault entry.
-                </p>
+                {prompt.description && (
+                  <p
+                    className="text-[15px] leading-relaxed"
+                    style={{ color: 'rgba(var(--text-primary) / 0.52)' }}
+                  >
+                    {prompt.description}
+                  </p>
+                )}
               </div>
 
               <div className="mb-10 md:mb-12">
@@ -360,35 +363,35 @@ const PromptDetailPage = () => {
                 </div>
               </div>
 
-              <div
-                className="rounded-2xl border p-6 md:p-7"
-                style={{
-                  backgroundColor: 'rgba(var(--text-primary) / 0.02)',
-                  borderColor: 'rgba(var(--border-color) / 0.06)',
-                }}
-              >
-                <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted mb-5 flex items-center gap-2">
-                  <Wand2 size={12} className="opacity-45" />
-                  Configuration
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {paramsEntries.map(([key, val]) => {
-                    const Icon = paramIcon(key);
-                    return (
-                      <span
-                        key={key}
-                        className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3 py-1.5 text-[12px] border border-primary/[0.07] bg-primary/[0.03] text-primary/70"
-                      >
-                        <Icon size={13} className="opacity-45 shrink-0" />
-                        <span className="text-[10px] uppercase tracking-wider text-muted">
-                          {key}
+              {paramsEntries.length > 0 && (
+                <div
+                  className="rounded-2xl border p-6 md:p-7"
+                  style={{
+                    backgroundColor: 'rgba(var(--text-primary) / 0.02)',
+                    borderColor: 'rgba(var(--border-color) / 0.06)',
+                  }}
+                >
+                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted mb-5 flex items-center gap-2">
+                    <Wand2 size={12} className="opacity-45" />
+                    Configuration
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {paramsEntries.map(([key, val]) => {
+                      const Icon = paramIcon(key);
+                      return (
+                        <span
+                          key={key}
+                          className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3 py-1.5 text-[12px] border border-primary/[0.07] bg-primary/[0.03] text-primary/70"
+                        >
+                          <Icon size={13} className="opacity-45 shrink-0" />
+                          <span className="text-[10px] uppercase tracking-wider text-muted">{key}</span>
+                          <span className="text-primary font-medium">{val}</span>
                         </span>
-                        <span className="text-primary font-medium">{val}</span>
-                      </span>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           </div>
         </div>

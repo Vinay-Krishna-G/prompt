@@ -117,7 +117,7 @@ const Navbar = () => {
                         className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] hover:bg-primary/[0.03] transition-colors"
                         style={{ color: 'rgba(var(--text-primary) / 0.7)' }}
                       >
-                        <span className="opacity-70 text-[14px]">{c.icon || '📁'}</span>
+                        {c.icon && <span className="opacity-70 text-[14px]">{c.icon}</span>}
                         {c.name}
                       </Link>
                     ))}
