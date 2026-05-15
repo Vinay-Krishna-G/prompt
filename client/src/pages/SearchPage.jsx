@@ -153,7 +153,7 @@ const SearchPage = () => {
                       className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
                         type === opt.value
                           ? 'font-medium border'
-                          : 'hover:bg-black/5 dark:hover:bg-white/5'
+                          : 'hover:bg-background/5 dark:hover:bg-primary/5'
                       }`}
                       style={type === opt.value ? { 
                         backgroundColor: 'rgb(var(--text-primary))', 
@@ -176,7 +176,7 @@ const SearchPage = () => {
                   <button
                     onClick={() => setCategory('all')}
                     className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
-                      category === 'all' ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-white/60 hover:text-white hover:bg-white/5'
+                      category === 'all' ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                     }`}
                   >
                     All Categories
@@ -186,7 +186,7 @@ const SearchPage = () => {
                       key={cat.id}
                       onClick={() => setCategory(cat.id)}
                       className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all flex items-center gap-2 ${
-                        category === cat.id ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-white/60 hover:text-white hover:bg-white/5'
+                        category === cat.id ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                       }`}
                     >
                       <span className="text-base">{cat.icon}</span>
@@ -210,7 +210,7 @@ const SearchPage = () => {
                       key={opt.value}
                       onClick={() => setSortBy(opt.value)}
                       className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
-                        sortBy === opt.value ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-white/60 hover:text-white hover:bg-white/5'
+                        sortBy === opt.value ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                       }`}
                     >
                       {opt.label}

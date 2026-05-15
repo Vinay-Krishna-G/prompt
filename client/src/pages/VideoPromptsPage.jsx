@@ -42,17 +42,17 @@ const VideoCard = ({ prompt, index }) => {
             />
 
             {/* Dark overlay */}
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-300" />
+            <div className="absolute inset-0 bg-background/30 group-hover:bg-background/10 transition-colors duration-300" />
 
             {/* Play button */}
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
                 whileHover={{ scale: 1.04 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="w-14 h-14 rounded-full flex items-center justify-center border border-white/15"
+                className="w-14 h-14 rounded-full flex items-center justify-center border border-primary/15"
                 style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)' }}
               >
-                <Play size={22} className="text-white ml-1 fill-white" />
+                <Play size={22} className="text-primary ml-1 fill-white" />
               </motion.div>
             </div>
 
@@ -65,7 +65,7 @@ const VideoCard = ({ prompt, index }) => {
 
             {/* Duration badge */}
             <div className="absolute bottom-3 right-3">
-              <span className="px-2 py-1 rounded-lg text-xs font-semibold text-white"
+              <span className="px-2 py-1 rounded-lg text-xs font-semibold text-primary"
                 style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
                 0:08
               </span>
@@ -83,7 +83,7 @@ const VideoCard = ({ prompt, index }) => {
             <div className="flex items-center justify-between text-xs font-medium" style={{ color: 'rgba(var(--text-primary) / 0.5)' }}>
               <div className="flex items-center gap-1.5">
                 <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white/90 border border-white/10"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-primary/90 border border-primary/10"
                   style={{ backgroundColor: 'rgba(var(--text-primary) / 0.12)' }}
                 >
                   {prompt.creator.avatar.slice(0, 1)}

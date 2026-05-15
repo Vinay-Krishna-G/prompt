@@ -80,7 +80,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 border border-white/[0.05] rounded-xl p-1 shadow-2xl backdrop-blur-xl"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 border border-primary/[0.05] rounded-xl p-1 shadow-2xl backdrop-blur-xl"
                   style={{ backgroundColor: 'rgb(var(--bg-elevated))' }}
                 >
                   <div className="grid gap-0.5">
@@ -88,7 +88,7 @@ const Navbar = () => {
                       <Link
                         key={c.id}
                         to={`/categories/${c.id}`}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] hover:bg-white/[0.03] transition-colors"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] hover:bg-primary/[0.03] transition-colors"
                         style={{ color: 'rgba(var(--text-primary) / 0.7)' }}
                       >
                         <span className="opacity-70 text-[14px]">{c.icon}</span>
@@ -130,7 +130,7 @@ const Navbar = () => {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
+            className="w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-background/[0.03] dark:hover:bg-primary/[0.05]"
             aria-label="Toggle Theme"
             style={{ color: 'rgba(var(--text-primary) / 0.7)' }}
           >
@@ -158,18 +158,18 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="absolute right-0 top-full mt-2 w-48 bg-dark-200 border border-white/[0.05] rounded-xl p-1 shadow-2xl backdrop-blur-md"
+                    className="absolute right-0 top-full mt-2 w-48 bg-dark-200 border border-primary/[0.05] rounded-xl p-1 shadow-2xl backdrop-blur-md"
                   >
-                    <Link to="/profile" className="flex items-center gap-2 px-3 py-2 text-[13px] text-gray-400 hover:text-white hover:bg-white/[0.03] rounded-lg">
+                    <Link to="/profile" className="flex items-center gap-2 px-3 py-2 text-[13px] text-gray-400 hover:text-primary hover:bg-primary/[0.03] rounded-lg">
                       <User size={13} /> Account
                     </Link>
-                    <Link to="/saved" className="flex items-center gap-2 px-3 py-2 text-[13px] text-gray-400 hover:text-white hover:bg-white/[0.03] rounded-lg">
+                    <Link to="/saved" className="flex items-center gap-2 px-3 py-2 text-[13px] text-gray-400 hover:text-primary hover:bg-primary/[0.03] rounded-lg">
                       <BookmarkCheck size={13} /> Library
                     </Link>
-                    <Link to="/admin" className="flex items-center gap-2 px-3 py-2 text-[13px] text-gray-400 hover:text-white hover:bg-white/[0.03] rounded-lg">
+                    <Link to="/admin" className="flex items-center gap-2 px-3 py-2 text-[13px] text-gray-400 hover:text-primary hover:bg-primary/[0.03] rounded-lg">
                       <Shield size={13} /> Dashboard
                     </Link>
-                    <div className="h-px bg-white/[0.04] my-1" />
+                    <div className="h-px bg-primary/[0.04] my-1" />
                     <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-red-400 hover:bg-red-500/[0.05] rounded-lg">
                       <LogOut size={13} /> Sign Out
                     </button>
@@ -179,10 +179,10 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="text-[13px] text-gray-400 hover:text-white px-3 transition-colors">
+              <Link to="/login" className="text-[13px] text-gray-400 hover:text-primary px-3 transition-colors">
                 Log In
               </Link>
-              <Link to="/register" className="px-4 py-1.5 rounded-full bg-white text-black text-[12px] font-semibold hover:bg-gray-200 transition-all shadow-sm">
+              <Link to="/register" className="px-4 py-1.5 rounded-full bg-primary text-background text-[12px] font-semibold hover:bg-gray-200 transition-all shadow-sm">
                 Sign Up
               </Link>
             </div>
@@ -192,7 +192,7 @@ const Navbar = () => {
         {/* Mobile Hamburger */}
         <button 
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden p-1 text-gray-400 hover:text-white"
+          className="md:hidden p-1 text-gray-400 hover:text-primary"
         >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -205,7 +205,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-full inset-x-0 bg-dark-50 border-b border-white/[0.03] p-6 md:hidden flex flex-col gap-4 shadow-2xl backdrop-blur-3xl"
+            className="absolute top-full inset-x-0 bg-dark-50 border-b border-primary/[0.03] p-6 md:hidden flex flex-col gap-4 shadow-2xl backdrop-blur-3xl"
           >
             <button
               type="button"
@@ -213,20 +213,20 @@ const Navbar = () => {
                 setCommandPaletteOpen(true);
                 setMenuOpen(false);
               }}
-              className="flex items-center gap-3 text-lg font-medium text-white py-2 border border-white/[0.08] rounded-xl px-4 justify-center transition-colors hover:bg-white/[0.04]"
+              className="flex items-center gap-3 text-lg font-medium text-primary py-2 border border-primary/[0.08] rounded-xl px-4 justify-center transition-colors hover:bg-primary/[0.04]"
             >
               <Search size={18} /> Search vault
             </button>
             {links.map((l) => (
-              <Link key={l.to} to={l.to} className="text-lg font-medium text-white flex items-center gap-3">
+              <Link key={l.to} to={l.to} className="text-lg font-medium text-primary flex items-center gap-3">
                 {l.icon} {l.label}
               </Link>
             ))}
-            <div className="h-px bg-white/[0.03] my-2" />
+            <div className="h-px bg-primary/[0.03] my-2" />
             {!isLoggedIn ? (
               <>
                 <Link to="/login" className="text-gray-300">Login</Link>
-                <Link to="/register" className="w-full text-center py-3 bg-white text-black font-medium rounded-xl">Get Started</Link>
+                <Link to="/register" className="w-full text-center py-3 bg-primary text-background font-medium rounded-xl">Get Started</Link>
               </>
             ) : (
               <button onClick={logout} className="text-left text-red-400">Log Out</button>

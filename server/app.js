@@ -21,6 +21,7 @@ import userRouter from './routes/userRoutes.js';
 import promptRouter from './routes/promptRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js';
+import categoryRouter from './routes/categoryRoutes.js';
 
 const app = express();
 
@@ -57,6 +58,12 @@ app.use(helmet());
 app.use(morgan(env.isProd ? 'combined' : 'dev'));
 
 // Limit requests from same IP (Denial of service protection)
+// Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cookieParser());
+
+// Limit requests from same IP (Denial of service protection)
 const limiter = rateLimit({
   windowMs: env.rateLimit.windowMs,
   limit: env.rateLimit.max,
@@ -66,17 +73,11 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Body parser, reading data from body into req.body
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(cookieParser());
-
-
 // Data sanitization against NoSQL query injection
-//app.use(mongoSanitizeMiddleware());
+// app.use(mongoSanitizeMiddleware());
 
 // Data sanitization against XSS (cross-site scripting)
-app.use(xss());
+// app.use(xss());
 
 // Prevent parameter pollution (e.g., duplicate query parameters causing array conversion bugs)
 app.use(hpp({
@@ -93,6 +94,17 @@ app.use(compression());
 
 // 2) ROUTES
 
+app.use((req, res, next) => {
+  if (req.method === 'POST') {
+    console.log('--- DEBUG LOG ---');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Body:', JSON.stringify(req.body));
+    console.log('-----------------');
+  }
+  next();
+});
 
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'PromptVault API Operational' });
@@ -103,6 +115,7 @@ app.use('/api/users', userRouter);
 app.use('/api/prompts', promptRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/categories', categoryRouter);
 
 // 3) CATCH-ALL ERROR HANDLING
 app.use(notFound);

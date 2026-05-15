@@ -27,3 +27,13 @@ export const uploadAsset = async (file) => {
   
   return data.data; // { url, publicId, resourceType, format }
 };
+
+export const updatePrompt = async (id, promptData) => {
+  const { data } = await api.patch(`/prompts/${id}`, promptData);
+  return data.data;
+};
+
+export const deletePrompt = async (id) => {
+  const { data } = await api.delete(`/prompts/${id}`);
+  return data.data;
+};

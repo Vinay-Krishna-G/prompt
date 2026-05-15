@@ -4,8 +4,10 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.use(protect, admin);
+router.get('/me', protect, userController.getMe);
 
+router.use(protect, admin);
 router.get('/', userController.getAllUsers);
+router.patch('/:id/role', userController.updateUserRole);
 
 export default router;

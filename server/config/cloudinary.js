@@ -14,6 +14,7 @@ export const uploadToCloudinary = (buffer, folder, resourceType = 'auto') => {
       {
         folder,
         resource_type: resourceType,
+        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
       },
       (error, result) => {
         if (error) return reject(error);

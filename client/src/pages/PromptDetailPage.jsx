@@ -81,7 +81,7 @@ const PromptDetailPage = () => {
         <div>
           <Disc size={32} className="mx-auto text-red-500/50 mb-4" />
           <h2 className="text-xl font-medium mb-2">{error || 'Prompt not found'}</h2>
-          <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-white">Go Back</button>
+          <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-primary">Go Back</button>
         </div>
       </div>
     );
@@ -134,7 +134,7 @@ const PromptDetailPage = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.72, ease: EASE_PREMIUM }}
-              className="relative rounded-2xl overflow-hidden border border-white/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-dark-200 group"
+              className="relative rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-dark-200 group"
             >
               {prompt.type === 'video' ? (
                 <div className="relative aspect-video">
@@ -157,8 +157,8 @@ const PromptDetailPage = () => {
                       className="w-full h-full object-cover"
                     />
                   )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/12 transition-colors duration-500 ease-premium pointer-events-none">
-                    <div className="w-20 h-20 rounded-full bg-black/35 backdrop-blur-md border border-white/15 flex items-center justify-center text-white transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/25 group-hover:bg-background/12 transition-colors duration-500 ease-premium pointer-events-none">
+                    <div className="w-20 h-20 rounded-full bg-background/35 backdrop-blur-md border border-primary/15 flex items-center justify-center text-primary transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
                       <Play size={32} className="ml-2 fill-current" />
                     </div>
                   </div>
@@ -199,7 +199,7 @@ const PromptDetailPage = () => {
                 {prompt.tags.slice(0, 4).map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] border border-white/[0.06] text-[rgba(var(--text-primary)/0.55)]"
+                    className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-[rgba(var(--text-primary)/0.55)]"
                   >
                     #{tag}
                   </span>
@@ -208,14 +208,14 @@ const PromptDetailPage = () => {
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  className="p-2.5 rounded-full text-gray-400 hover:bg-white/[0.06] hover:text-white transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                  className="p-2.5 rounded-full text-gray-400 hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                   aria-label="Share"
                 >
                   <Share2 size={16} />
                 </button>
                 <button
                   type="button"
-                  className="p-2.5 rounded-full text-gray-400 hover:bg-white/[0.06] hover:text-white transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                  className="p-2.5 rounded-full text-gray-400 hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                   aria-label="Download"
                 >
                   <Download size={16} />
@@ -231,9 +231,9 @@ const PromptDetailPage = () => {
               transition={{ duration: 0.72, ease: EASE_PREMIUM, delay: 0.08 }}
               className="flex flex-col"
             >
-              <div className="mb-10 md:mb-12 border-b border-white/[0.04] pb-10 md:pb-12">
+              <div className="mb-10 md:mb-12 border-b border-primary/[0.04] pb-10 md:pb-12">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.06] text-xs text-gray-200 font-medium overflow-hidden">
+                  <div className="w-9 h-9 rounded-full bg-primary/[0.05] flex items-center justify-center border border-primary/[0.06] text-xs text-gray-200 font-medium overflow-hidden">
                     {prompt.creator?.avatar && prompt.creator.avatar.length > 2 ? (
                       <img src={prompt.creator.avatar} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -250,7 +250,7 @@ const PromptDetailPage = () => {
                     <button
                       type="button"
                       onClick={() => toggleLike(prompt.slug || prompt._id)}
-                      className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-400/90 transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-white/[0.03]"
+                      className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-400/90 transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-primary/[0.03]"
                     >
                       <Heart size={14} className={isLiked ? 'fill-red-400 text-red-400' : ''} />
                       {prompt.likes}
@@ -258,7 +258,7 @@ const PromptDetailPage = () => {
                     <button
                       type="button"
                       onClick={() => toggleSave(prompt.slug || prompt._id)}
-                      className="p-2.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-gray-300 hover:text-white hover:bg-white/[0.07] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                      className="p-2.5 rounded-full bg-primary/[0.03] border border-primary/[0.06] text-gray-300 hover:text-primary hover:bg-primary/[0.07] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                       aria-label={isSaved ? 'Unsave' : 'Save'}
                     >
                       {isSaved ? <BookmarkCheck size={16} className="text-indigo-400" /> : <Bookmark size={16} />}
@@ -270,11 +270,11 @@ const PromptDetailPage = () => {
                   {prompt.title}
                 </h1>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-white/[0.06] text-gray-500">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-gray-500">
                     <Calendar size={11} />
                     {new Date(prompt.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-white/[0.06] text-gray-500">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-gray-500">
                     {prompt.type === 'video' ? 'Video template' : 'Image template'}
                   </span>
                 </div>
@@ -288,7 +288,7 @@ const PromptDetailPage = () => {
                 <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 flex items-center gap-2 mb-4">
                   <Disc size={12} className="opacity-45" /> Core template
                 </h3>
-                <div className="relative group syntax-box-minimal bg-dark-200 text-gray-200 p-6 md:p-7 leading-relaxed border border-white/[0.05] rounded-2xl font-mono text-[13px] selection:bg-white/10">
+                <div className="relative group syntax-box-minimal bg-dark-200 text-gray-200 p-6 md:p-7 leading-relaxed border border-primary/[0.05] rounded-2xl font-mono text-[13px] selection:bg-primary/10">
                   <div className="mb-24 md:mb-28 select-all opacity-90 pr-2">{prompt.promptText || prompt.prompt}</div>
                   <div className="absolute bottom-4 right-4 left-4 flex flex-wrap gap-2 justify-end">
                     <button
@@ -297,7 +297,7 @@ const PromptDetailPage = () => {
                       className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)] ${
                         remixCopied
                           ? 'border-emerald-500/25 text-emerald-400 bg-emerald-500/10'
-                          : 'border-white/[0.1] text-gray-200 bg-white/[0.04] hover:bg-white/[0.07] hover:border-white/[0.14]'
+                          : 'border-primary/[0.1] text-gray-200 bg-primary/[0.04] hover:bg-primary/[0.07] hover:border-primary/[0.14]'
                       }`}
                     >
                       {remixCopied ? <CheckCheck size={15} /> : <Shuffle size={15} className="opacity-80" />}
@@ -309,7 +309,7 @@ const PromptDetailPage = () => {
                       className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
                         copied
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                          : 'bg-white text-black hover:bg-gray-100 border border-transparent'
+                          : 'bg-primary text-background hover:bg-gray-100 border border-transparent'
                       }`}
                     >
                       {copied ? <CheckCheck size={15} /> : <Copy size={15} />}
@@ -336,7 +336,7 @@ const PromptDetailPage = () => {
                     return (
                       <span
                         key={key}
-                        className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3 py-1.5 text-[12px] border border-white/[0.07] bg-white/[0.03] text-gray-300"
+                        className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3 py-1.5 text-[12px] border border-primary/[0.07] bg-primary/[0.03] text-gray-300"
                       >
                         <Icon size={13} className="opacity-45 shrink-0" />
                         <span className="text-[10px] uppercase tracking-wider text-gray-500">{key}</span>
@@ -350,12 +350,12 @@ const PromptDetailPage = () => {
           </div>
         </div>
 
-        <div className="mt-28 md:mt-36 border-t border-white/[0.04] pt-16 md:pt-20">
+        <div className="mt-28 md:mt-36 border-t border-primary/[0.04] pt-16 md:pt-20">
           <div className="flex items-baseline justify-between mb-12 md:mb-14 gap-6">
             <h3 className="heading-cinematic text-2xl md:text-[1.65rem] font-medium tracking-[-0.02em]">
               Similar works
             </h3>
-            <div className="h-px bg-white/[0.05] flex-1 max-w-md hidden md:block" />
+            <div className="h-px bg-primary/[0.05] flex-1 max-w-md hidden md:block" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-7">
             {similarPrompts.map((p, i) => (

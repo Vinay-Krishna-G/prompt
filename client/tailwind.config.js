@@ -21,10 +21,16 @@ export default {
           50: withOpacity('--bg-primary'),
           100: withOpacity('--bg-surface'),
           200: withOpacity('--bg-elevated'),
-          300: withOpacity('--text-primary'), // Re-align to text context
+          300: withOpacity('--text-primary'),
           400: 'rgba(var(--text-primary) / 0.1)',
           500: 'rgba(var(--text-primary) / 0.2)',
         },
+        background: withOpacity('--bg-primary'),
+        surface: withOpacity('--bg-surface'),
+        elevated: withOpacity('--bg-elevated'),
+        primary: withOpacity('--text-primary'),
+        muted: withOpacity('--text-muted'),
+        subtle: 'rgba(var(--border-color) / 0.1)',
       },
       fontFamily: {
         sans: ['Geist', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],

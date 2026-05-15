@@ -79,7 +79,7 @@ const HomePage = () => {
         <div>
           <Disc size={32} className="mx-auto text-red-500/50 mb-4" />
           <h2 className="text-xl font-medium mb-2">{error}</h2>
-          <button onClick={() => window.location.reload()} className="text-sm text-gray-500 hover:text-white transition-colors">
+          <button onClick={() => window.location.reload()} className="text-sm text-gray-500 hover:text-primary transition-colors">
             Retry Connection
           </button>
         </div>
@@ -136,7 +136,7 @@ const HomePage = () => {
             >
               <Search size={14} className="opacity-60" /> 
               Quick Search
-              <kbd className="hidden sm:inline-flex items-center ml-2 gap-0.5 text-[10px] font-sans border border-white/10 bg-white/5 rounded px-1.5 opacity-40">
+              <kbd className="hidden sm:inline-flex items-center ml-2 gap-0.5 text-[10px] font-sans border border-primary/10 bg-primary/5 rounded px-1.5 opacity-40">
                 <Command size={9} /> K
               </kbd>
             </button>
@@ -177,7 +177,7 @@ const HomePage = () => {
       </section>
 
       {/* ===== MINIMALIST GRID DISPLAY ===== */}
-      <section className="py-16 bg-dark-100 border-y border-white/[0.02] dark:border-white/[0.02] light:border-black/[0.02]">
+      <section className="py-16 bg-dark-100 border-y border-primary/[0.02] dark:border-primary/[0.02] light:border-background/[0.02]">
         <div className="section-contain">
           <motion.div
             initial={{ opacity: 0 }}
@@ -228,7 +228,7 @@ const HomePage = () => {
       </section>
 
       {/* ===== FINAL CTA ===== */}
-      <section className="py-36 md:py-40 text-center relative overflow-hidden border-t border-white/[0.03]">
+      <section className="py-36 md:py-40 text-center relative overflow-hidden border-t border-primary/[0.03]">
         <div className="absolute inset-0 bg-ambient-light pointer-events-none" />
         <div className="section-contain relative z-10">
           <motion.div

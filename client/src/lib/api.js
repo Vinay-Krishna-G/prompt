@@ -26,9 +26,9 @@ api.interceptors.response.use(
   (error) => {
     // We could handle 401s here by logging out
     if (error.response && error.response.status === 401) {
-      // Optional: Handle unauthorized
-      // localStorage.removeItem('token');
-      // window.location.href = '/login';
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

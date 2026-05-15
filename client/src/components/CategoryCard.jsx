@@ -28,7 +28,7 @@ const CategoryCard = ({ category, index = 0 }) => {
         <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between">
           <div>
             <span className="text-[18px] opacity-80 block mb-1">{category.icon}</span>
-            <h3 className="text-[14px] font-medium text-white tracking-tight">{category.name}</h3>
+            <h3 className="text-[14px] font-medium text-primary tracking-tight">{category.name}</h3>
           </div>
           <div className="text-right">
             <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">

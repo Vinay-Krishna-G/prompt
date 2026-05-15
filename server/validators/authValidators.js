@@ -23,5 +23,4 @@ export const loginBodySchema = z
       .max(254)
       .transform((val) => val.toLowerCase()),
     password: z.string().min(1, 'Password is required').max(128),
-  })
-  .strict();
+  });

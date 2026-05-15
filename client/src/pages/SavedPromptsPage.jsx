@@ -31,10 +31,10 @@ const SavedPromptsPage = () => {
         >
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
             style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}>
-            <Bookmark size={28} className="text-white" />
+            <Bookmark size={28} className="text-primary" />
           </div>
-          <h2 className="font-display font-bold text-2xl text-white mb-2">Login Required</h2>
-          <p className="text-white/50 text-sm mb-6">Create a free account to save prompts and access your library.</p>
+          <h2 className="font-display font-bold text-2xl text-primary mb-2">Login Required</h2>
+          <p className="text-primary/50 text-sm mb-6">Create a free account to save prompts and access your library.</p>
           <div className="flex gap-3 justify-center">
             <Link to="/login" className="btn-secondary">Log In</Link>
             <Link to="/register" className="btn-primary">Sign Up Free</Link>
@@ -59,20 +59,20 @@ const SavedPromptsPage = () => {
             {user?.avatar || 'U'}
           </div>
           <div className="text-center sm:text-left">
-            <h1 className="font-display font-black text-3xl text-white">{user?.name}</h1>
-            <p className="text-white/40 text-sm mt-1">{user?.email}</p>
+            <h1 className="font-display font-black text-3xl text-primary">{user?.name}</h1>
+            <p className="text-primary/40 text-sm mt-1">{user?.email}</p>
             <div className="flex items-center justify-center sm:justify-start gap-6 mt-3">
               <div className="text-center">
-                <div className="font-bold text-white text-xl">{saved.length}</div>
-                <div className="text-xs text-white/40">Saved</div>
+                <div className="font-bold text-primary text-xl">{saved.length}</div>
+                <div className="text-xs text-primary/40">Saved</div>
               </div>
               <div className="text-center">
-                <div className="font-bold text-white text-xl">{liked.length}</div>
-                <div className="text-xs text-white/40">Liked</div>
+                <div className="font-bold text-primary text-xl">{liked.length}</div>
+                <div className="text-xs text-primary/40">Liked</div>
               </div>
               <div className="text-center">
-                <div className="font-bold text-white text-xl">{recent.length}</div>
-                <div className="text-xs text-white/40">Viewed</div>
+                <div className="font-bold text-primary text-xl">{recent.length}</div>
+                <div className="text-xs text-primary/40">Viewed</div>
               </div>
             </div>
           </div>
@@ -90,14 +90,14 @@ const SavedPromptsPage = () => {
         >
           <motion.div variants={itemVariants} className="flex items-center gap-2 mb-6">
             <Bookmark size={18} className="text-primary-400" />
-            <h2 className="font-display font-bold text-2xl text-white">Saved Prompts</h2>
+            <h2 className="font-display font-bold text-2xl text-primary">Saved Prompts</h2>
             <span className="badge-purple badge">{saved.length}</span>
           </motion.div>
 
           {saved.length === 0 ? (
             <motion.div variants={itemVariants} className="text-center py-16 glass-card">
-              <Bookmark size={40} className="text-white/20 mx-auto mb-3" />
-              <p className="text-white/40">No saved prompts yet. Browse and save your favorites!</p>
+              <Bookmark size={40} className="text-primary/20 mx-auto mb-3" />
+              <p className="text-primary/40">No saved prompts yet. Browse and save your favorites!</p>
               <Link to="/" className="btn-primary mt-4 inline-flex">Explore Prompts</Link>
             </motion.div>
           ) : (
@@ -121,14 +121,14 @@ const SavedPromptsPage = () => {
         >
           <motion.div variants={itemVariants} className="flex items-center gap-2 mb-6">
             <Heart size={18} className="text-red-400" />
-            <h2 className="font-display font-bold text-2xl text-white">Liked Prompts</h2>
+            <h2 className="font-display font-bold text-2xl text-primary">Liked Prompts</h2>
             <span className="badge badge-pink">{liked.length}</span>
           </motion.div>
 
           {liked.length === 0 ? (
             <motion.div variants={itemVariants} className="text-center py-16 glass-card">
-              <Heart size={40} className="text-white/20 mx-auto mb-3" />
-              <p className="text-white/40">No liked prompts yet. Like prompts you find inspiring!</p>
+              <Heart size={40} className="text-primary/20 mx-auto mb-3" />
+              <p className="text-primary/40">No liked prompts yet. Like prompts you find inspiring!</p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -151,7 +151,7 @@ const SavedPromptsPage = () => {
           >
             <motion.div variants={itemVariants} className="flex items-center gap-2 mb-6">
               <Clock size={18} className="text-secondary-400" />
-              <h2 className="font-display font-bold text-2xl text-white">Recently Viewed</h2>
+              <h2 className="font-display font-bold text-2xl text-primary">Recently Viewed</h2>
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {recent.map((prompt, i) => (

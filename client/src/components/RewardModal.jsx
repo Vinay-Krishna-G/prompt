@@ -62,7 +62,7 @@ const RewardModal = () => {
 
           <button
             onClick={() => setShowRewardModal(false)}
-            className="absolute top-4 right-4 p-2 rounded-xl hover:bg-white/5 text-white/40 hover:text-white transition-all"
+            className="absolute top-4 right-4 p-2 rounded-xl hover:bg-primary/5 text-primary/40 hover:text-primary transition-all"
           >
             <X size={18} />
           </button>
@@ -72,20 +72,20 @@ const RewardModal = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}>
-                <Zap size={28} className="text-white" />
+                <Zap size={28} className="text-primary" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-white mb-2">Copy Limit Reached</h2>
-              <p className="text-white/50 text-sm mb-2">
+              <h2 className="font-display font-bold text-2xl text-primary mb-2">Copy Limit Reached</h2>
+              <p className="text-primary/50 text-sm mb-2">
                 You've used your 3 free prompt copies.
               </p>
-              <p className="text-white/70 text-sm mb-6">
+              <p className="text-primary/70 text-sm mb-6">
                 Watch a short reward to unlock <span className="text-primary-400 font-semibold">unlimited copies</span> for this session.
               </p>
 
               {pendingCopyPrompt && (
-                <div className="mb-6 p-3 rounded-xl bg-white/5 border border-white/10 text-left">
-                  <p className="text-xs text-white/40 mb-1">Copying prompt:</p>
-                  <p className="text-sm text-white/80 font-medium line-clamp-2">{pendingCopyPrompt.title}</p>
+                <div className="mb-6 p-3 rounded-xl bg-primary/5 border border-primary/10 text-left">
+                  <p className="text-xs text-primary/40 mb-1">Copying prompt:</p>
+                  <p className="text-sm text-primary/80 font-medium line-clamp-2">{pendingCopyPrompt.title}</p>
                 </div>
               )}
 
@@ -105,7 +105,7 @@ const RewardModal = () => {
                 </button>
               </div>
 
-              <p className="mt-4 text-xs text-white/30">
+              <p className="mt-4 text-xs text-primary/30">
                 Or <a href="/register" className="text-primary-400 underline">Sign up free</a> for unlimited copies
               </p>
             </motion.div>
@@ -132,7 +132,7 @@ const RewardModal = () => {
               </div>
 
               {/* Progress bar */}
-              <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-4">
+              <div className="w-full h-1.5 bg-primary/10 rounded-full overflow-hidden mb-4">
                 <motion.div
                   className="h-full rounded-full"
                   style={{ background: 'linear-gradient(90deg, #9333ea, #06b6d4)' }}
@@ -142,7 +142,7 @@ const RewardModal = () => {
                 />
               </div>
 
-              <p className="text-white/50 text-sm">
+              <p className="text-primary/50 text-sm">
                 Please wait while we load your reward...
               </p>
             </motion.div>
@@ -162,11 +162,11 @@ const RewardModal = () => {
                 className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
                 style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
               >
-                <CheckCheck size={36} className="text-white" />
+                <CheckCheck size={36} className="text-primary" />
               </motion.div>
 
-              <h2 className="font-display font-bold text-2xl text-white mb-2">Reward Unlocked!</h2>
-              <p className="text-white/60 text-sm mb-6">
+              <h2 className="font-display font-bold text-2xl text-primary mb-2">Reward Unlocked!</h2>
+              <p className="text-primary/60 text-sm mb-6">
                 Your prompt is ready to copy. Unlimited copies are now unlocked for this session.
               </p>
 

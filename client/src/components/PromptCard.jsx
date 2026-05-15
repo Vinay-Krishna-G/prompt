@@ -82,7 +82,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
                 <div className="flex justify-between items-start">
                   <div className="flex flex-wrap gap-1">
                     {prompt.type === 'video' && (
-                      <div className="flex items-center gap-1 bg-black/55 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider text-white/90">
+                      <div className="flex items-center gap-1 bg-background/55 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider text-primary/90">
                         <Play size={10} className="fill-current" /> Video
                       </div>
                     )}
@@ -90,7 +90,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
                   <button
                     type="button"
                     onClick={onSave}
-                    className="w-8 h-8 rounded-full bg-black/45 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
+                    className="w-8 h-8 rounded-full bg-background/45 backdrop-blur-md flex items-center justify-center text-primary hover:bg-primary hover:text-background transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
                   >
                     {isSaved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
                   </button>
@@ -100,7 +100,7 @@ const PromptCard = ({ prompt, index = 0 }) => {
                   <button
                     type="button"
                     onClick={onCopy}
-                    className="w-full py-2 px-4 rounded-xl bg-white text-black text-xs font-medium flex items-center justify-center gap-2 transition-all duration-500 ease-premium translate-y-2 group-hover:translate-y-0 opacity-95 hover:opacity-100 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+                    className="w-full py-2 px-4 rounded-xl bg-primary text-background text-xs font-medium flex items-center justify-center gap-2 transition-all duration-500 ease-premium translate-y-2 group-hover:translate-y-0 opacity-95 hover:opacity-100 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
                     style={{ boxShadow: '0 8px 32px -8px rgba(0,0,0,0.35)' }}
                   >
                     {copied ? <CheckCheck size={13} /> : <Copy size={13} />}

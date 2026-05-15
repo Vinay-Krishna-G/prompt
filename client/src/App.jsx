@@ -15,6 +15,7 @@ import RegisterPage from './pages/RegisterPage';
 import AdminDashboard from './pages/AdminDashboard';
 import SavedPromptsPage from './pages/SavedPromptsPage';
 import TrendingPage from './pages/TrendingPage';
+import AdminRoute from './components/AdminRoute';
 
 // Page transition wrapper
 const PageTransition = ({ children }) => (
@@ -30,7 +31,7 @@ const PageTransition = ({ children }) => (
 
 // Footer
 const Footer = () => (
-  <footer className="bg-dark-50 border-t border-white/[0.03] py-20 lg:py-28 relative overflow-hidden">
+  <footer className="bg-dark-50 border-t border-primary/[0.03] py-20 lg:py-28 relative overflow-hidden">
     <div className="absolute inset-0 bg-ambient-light opacity-50 pointer-events-none" />
     
     <div className="section-contain relative z-10">
@@ -38,8 +39,8 @@ const Footer = () => (
         
         <div className="col-span-2 md:col-span-4">
           <div className="flex items-center gap-2 mb-4 opacity-80">
-            <Disc size={20} className="text-white stroke-[1.5]" />
-            <span className="font-display font-medium text-[16px] tracking-tight text-white">Vault</span>
+            <Disc size={20} className="text-primary stroke-[1.5]" />
+            <span className="font-display font-medium text-[16px] tracking-tight text-primary">Vault</span>
           </div>
           <p className="text-gray-500 text-sm leading-relaxed max-w-xs font-light">
             The ultimate reference dataset for modern visual engineering and AI generated imagery.
@@ -58,7 +59,7 @@ const Footer = () => (
             <ul className="space-y-2.5">
               {col.links.map(link => (
                 <li key={link}>
-                  <a href="#" className="text-gray-500 hover:text-white text-[13px] transition-colors font-light">{link}</a>
+                  <a href="#" className="text-gray-500 hover:text-primary text-[13px] transition-colors font-light">{link}</a>
                 </li>
               ))}
             </ul>
@@ -66,7 +67,7 @@ const Footer = () => (
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-white/[0.03]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-primary/[0.03]">
         <p className="text-gray-600 text-[11px] tracking-wide">© 2026 VAULT SYSTEMS INC.</p>
         <div className="flex items-center gap-6">
           <a href="#" className="text-gray-600 hover:text-gray-400 text-[11px] transition-colors uppercase tracking-widest">Status</a>
@@ -100,8 +101,10 @@ const AppRoutes = () => {
             <Route path="/profile" element={<PageTransition><SavedPromptsPage /></PageTransition>} />
             <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
             <Route path="/register" element={<PageTransition><RegisterPage /></PageTransition>} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/*" element={<AdminDashboard />} />
+            </Route>
           </Routes>
         </AnimatePresence>
       </main>

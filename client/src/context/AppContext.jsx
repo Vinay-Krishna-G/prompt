@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { getMe } from '../services/authService';
 
 const AppContext = createContext();
 
@@ -21,8 +22,14 @@ export const AppProvider = ({ children }) => {
   const [copiedCount, setCopiedCount] = useState(() => {
     try { return parseInt(localStorage.getItem('copiedCount') || '0'); } catch { return 0; }
   });
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('user'));
+    } catch {
+      return null;
+    }
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showRewardModal, setShowRewardModal] = useState(false);
@@ -37,6 +44,29 @@ export const AppProvider = ({ children }) => {
   });
 
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token && !user) {
+        try {
+          const { user: fetchedUser } = await getMe();
+          setUser(fetchedUser);
+          localStorage.setItem('user', JSON.stringify(fetchedUser));
+          setIsLoggedIn(true);
+        } catch (error) {
+          console.error('Auth restoration failed', error);
+          logout();
+        }
+      } else if (!token) {
+        setIsLoggedIn(false);
+      }
+      setIsAuthLoading(false);
+    };
+    initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -134,21 +164,25 @@ export const AppProvider = ({ children }) => {
     setCopiedCount(0);
   };
 
-  const login = (userData) => {
+  const login = (userData, token) => {
     setIsLoggedIn(true);
-    setUser(userData || { name: 'Demo User', email: 'demo@promptvault.ai', avatar: 'DU' });
+    setUser(userData);
+    if (token) localStorage.setItem('token', token);
+    if (userData) localStorage.setItem('user', JSON.stringify(userData));
     setCopiedCount(0);
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   };
 
   return (
     <AppContext.Provider value={{
       savedPrompts, likedPrompts, recentlyViewed,
-      copiedCount, isLoggedIn, user, searchQuery,
+      copiedCount, isLoggedIn, isAuthLoading, user, searchQuery,
       selectedCategory, showRewardModal, pendingCopyPrompt,
       theme, toggleTheme,
       commandPaletteOpen, setCommandPaletteOpen,
