@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Filter, X } from 'lucide-react';
 import PromptCard from '../components/PromptCard';
-import { PROMPTS, CATEGORIES, TRENDING_TAGS } from '../data/mockData';
+import { getCategories } from '../services/categoryService';
+import { getPrompts } from '../services/promptService';
 import { useApp } from '../context/AppContext';
 import { EASE_PREMIUM } from '../lib/motion';
+
+const TRENDING_TAGS = ['cinematic', 'neon', 'cyberpunk', 'portrait', 'abstract', 'anime', 'landscape', 'fantasy'];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -24,42 +27,61 @@ const SearchPage = () => {
   const [category, setCategory] = useState('all');
   const [type, setType] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
-  const [selectedTag, setSelectedTag] = useState('');
 
+  const [results, setResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [categories, setCategories] = useState([]);
+
+  // Sync URL param → local state
   useEffect(() => {
     setLocalSearch(q);
     setSearchQuery(q);
   }, [q, setSearchQuery]);
 
-  const results = PROMPTS.filter(p => {
-    const query = localSearch.toLowerCase();
-    const matchesQuery = !query ||
-      p.title.toLowerCase().includes(query) ||
-      p.prompt.toLowerCase().includes(query) ||
-      p.tags.some(t => t.toLowerCase().includes(query)) ||
-      p.categoryName.toLowerCase().includes(query) ||
-      p.aiModel.toLowerCase().includes(query);
+  // Fetch categories from backend
+  useEffect(() => {
+    getCategories()
+      .then((res) => setCategories(res.categories || []))
+      .catch(() => {});
+  }, []);
 
-    const matchesCategory = category === 'all' || p.category === category;
-    const matchesType = type === 'all' || p.type === type;
-    const matchesTag = !selectedTag || p.tags.includes(selectedTag);
+  // Debounced search: fires 350ms after last keystroke / filter change
+  const fetchResults = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = { limit: 50, sort: '-createdAt' };
+      if (localSearch.trim()) params.search = localSearch.trim();
+      if (category !== 'all') params.category = category;
+      if (type !== 'all') params.type = type;
+      if (sortBy === 'popular') params.sort = '-copies';
+      if (sortBy === 'liked') params.sort = '-likes';
+      if (sortBy === 'newest') params.sort = '-createdAt';
 
-    return matchesQuery && matchesCategory && matchesType && matchesTag;
-  }).sort((a, b) => {
-    if (sortBy === 'popular') return b.copies - a.copies;
-    if (sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
-    if (sortBy === 'liked') return b.likes - a.likes;
-    return 0;
-  });
+      const res = await getPrompts(params);
+      setResults(res.prompts || []);
+      setTotal(res.pagination?.total ?? res.prompts?.length ?? 0);
+    } catch (err) {
+      console.error('Search failed', err);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [localSearch, category, type, sortBy]);
+
+  useEffect(() => {
+    const timer = setTimeout(fetchResults, 350);
+    return () => clearTimeout(timer);
+  }, [fetchResults]);
 
   const clearFilters = () => {
     setCategory('all');
     setType('all');
     setSortBy('relevance');
-    setSelectedTag('');
+    setLocalSearch('');
   };
 
-  const hasFilters = category !== 'all' || type !== 'all' || sortBy !== 'relevance' || selectedTag;
+  const hasFilters = category !== 'all' || type !== 'all' || sortBy !== 'relevance' || localSearch;
 
   return (
     <div className="min-h-screen pt-24 pb-24">
@@ -71,21 +93,32 @@ const SearchPage = () => {
           transition={{ duration: 0.68, ease: EASE_PREMIUM }}
           className="mb-14"
         >
-          <h1 className="font-display font-bold tracking-tightest text-4xl sm:text-5xl mb-4" style={{ color: 'rgb(var(--text-primary))' }}>
+          <h1
+            className="font-display font-bold tracking-tightest text-4xl sm:text-5xl mb-4"
+            style={{ color: 'rgb(var(--text-primary))' }}
+          >
             {q ? (
-              <>Search: <span className="opacity-70">"{q}"</span></>
+              <>
+                Search: <span className="opacity-70">"{q}"</span>
+              </>
             ) : (
               <>Explore Prompts</>
             )}
           </h1>
 
           {/* Main search bar */}
-          <div className="flex items-center gap-3 p-4 rounded-2xl border focus-within:border-opacity-40 transition-colors mb-6 shadow-sm"
-            style={{ 
+          <div
+            className="flex items-center gap-3 p-4 rounded-2xl border focus-within:border-opacity-40 transition-colors mb-6 shadow-sm"
+            style={{
               backgroundColor: 'rgba(var(--text-primary) / 0.03)',
-              borderColor: 'rgba(var(--border-color) / 0.08)'
-            }}>
-            <Search size={20} className="opacity-40 flex-shrink-0" style={{ color: 'rgb(var(--text-primary))' }} />
+              borderColor: 'rgba(var(--border-color) / 0.08)',
+            }}
+          >
+            <Search
+              size={20}
+              className="opacity-40 flex-shrink-0"
+              style={{ color: 'rgb(var(--text-primary))' }}
+            />
             <input
               type="text"
               value={localSearch}
@@ -96,7 +129,11 @@ const SearchPage = () => {
               autoFocus={!q}
             />
             {localSearch && (
-              <button onClick={() => setLocalSearch('')} className="opacity-30 hover:opacity-80 transition-opacity" style={{ color: 'rgb(var(--text-primary))' }}>
+              <button
+                onClick={() => setLocalSearch('')}
+                className="opacity-30 hover:opacity-80 transition-opacity"
+                style={{ color: 'rgb(var(--text-primary))' }}
+              >
                 <X size={16} />
               </button>
             )}
@@ -104,8 +141,13 @@ const SearchPage = () => {
 
           {/* Trending keywords */}
           <div className="flex flex-wrap gap-2">
-            <span className="text-xs self-center mr-1" style={{ color: 'rgba(var(--text-primary) / 0.4)' }}>Trending:</span>
-            {TRENDING_TAGS.slice(0, 8).map(tag => (
+            <span
+              className="text-xs self-center mr-1"
+              style={{ color: 'rgba(var(--text-primary) / 0.4)' }}
+            >
+              Trending:
+            </span>
+            {TRENDING_TAGS.slice(0, 8).map((tag) => (
               <button
                 key={tag}
                 onClick={() => setLocalSearch(tag)}
@@ -127,12 +169,18 @@ const SearchPage = () => {
           >
             <div className="sticky top-24 space-y-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: 'rgba(var(--text-primary) / 0.8)' }}>
+                <div
+                  className="flex items-center gap-2 text-sm font-semibold"
+                  style={{ color: 'rgba(var(--text-primary) / 0.8)' }}
+                >
                   <Filter size={14} />
                   Filters
                 </div>
                 {hasFilters && (
-                  <button onClick={clearFilters} className="text-xs text-primary-400 hover:text-primary-300 transition-colors">
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
+                  >
                     Clear all
                   </button>
                 )}
@@ -140,13 +188,18 @@ const SearchPage = () => {
 
               {/* Type */}
               <div>
-                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(var(--text-primary) / 0.4)' }}>Type</p>
+                <p
+                  className="text-xs uppercase tracking-widest mb-3"
+                  style={{ color: 'rgba(var(--text-primary) / 0.4)' }}
+                >
+                  Type
+                </p>
                 <div className="space-y-1">
                   {[
                     { value: 'all', label: 'All Types' },
                     { value: 'image', label: '🖼 Image Prompts' },
                     { value: 'video', label: '▶ Video Prompts' },
-                  ].map(opt => (
+                  ].map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => setType(opt.value)}
@@ -155,13 +208,17 @@ const SearchPage = () => {
                           ? 'font-medium border'
                           : 'hover:bg-background/5 dark:hover:bg-primary/5'
                       }`}
-                      style={type === opt.value ? { 
-                        backgroundColor: 'rgb(var(--text-primary))', 
-                        color: 'rgb(var(--bg-primary))',
-                        borderColor: 'transparent'
-                      } : {
-                        color: 'rgba(var(--text-primary) / 0.7)'
-                      }}
+                      style={
+                        type === opt.value
+                          ? {
+                              backgroundColor: 'rgb(var(--text-primary))',
+                              color: 'rgb(var(--bg-primary))',
+                              borderColor: 'transparent',
+                            }
+                          : {
+                              color: 'rgba(var(--text-primary) / 0.7)',
+                            }
+                      }
                     >
                       {opt.label}
                     </button>
@@ -171,25 +228,34 @@ const SearchPage = () => {
 
               {/* Categories */}
               <div>
-                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(var(--text-primary) / 0.4)' }}>Category</p>
+                <p
+                  className="text-xs uppercase tracking-widest mb-3"
+                  style={{ color: 'rgba(var(--text-primary) / 0.4)' }}
+                >
+                  Category
+                </p>
                 <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
                   <button
                     onClick={() => setCategory('all')}
                     className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
-                      category === 'all' ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-primary/60 hover:text-primary hover:bg-primary/5'
+                      category === 'all'
+                        ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
+                        : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                     }`}
                   >
                     All Categories
                   </button>
-                  {CATEGORIES.map(cat => (
+                  {categories.map((cat) => (
                     <button
-                      key={cat.id}
-                      onClick={() => setCategory(cat.id)}
+                      key={cat._id}
+                      onClick={() => setCategory(cat.name)}
                       className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all flex items-center gap-2 ${
-                        category === cat.id ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-primary/60 hover:text-primary hover:bg-primary/5'
+                        category === cat.name
+                          ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
+                          : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                       }`}
                     >
-                      <span className="text-base">{cat.icon}</span>
+                      <span className="text-base">{cat.icon || '📁'}</span>
                       {cat.name}
                     </button>
                   ))}
@@ -198,19 +264,26 @@ const SearchPage = () => {
 
               {/* Sort */}
               <div>
-                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(var(--text-primary) / 0.4)' }}>Sort By</p>
+                <p
+                  className="text-xs uppercase tracking-widest mb-3"
+                  style={{ color: 'rgba(var(--text-primary) / 0.4)' }}
+                >
+                  Sort By
+                </p>
                 <div className="space-y-1">
                   {[
                     { value: 'relevance', label: 'Relevance' },
                     { value: 'popular', label: 'Most Copied' },
                     { value: 'newest', label: 'Newest' },
                     { value: 'liked', label: 'Most Liked' },
-                  ].map(opt => (
+                  ].map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => setSortBy(opt.value)}
                       className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
-                        sortBy === opt.value ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'text-primary/60 hover:text-primary hover:bg-primary/5'
+                        sortBy === opt.value
+                          ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
+                          : 'text-primary/60 hover:text-primary hover:bg-primary/5'
                       }`}
                     >
                       {opt.label}
@@ -223,19 +296,25 @@ const SearchPage = () => {
 
           {/* Results */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-6 pb-2" style={{ borderBottom: '1px solid rgba(var(--border-color) / 0.06)' }}>
+            <div
+              className="flex items-center justify-between mb-6 pb-2"
+              style={{ borderBottom: '1px solid rgba(var(--border-color) / 0.06)' }}
+            >
               <p className="text-sm" style={{ color: 'rgba(var(--text-primary) / 0.5)' }}>
-                <span className="font-bold" style={{ color: 'rgb(var(--text-primary))' }}>{results.length}</span> prompts found
+                <span className="font-bold" style={{ color: 'rgb(var(--text-primary))' }}>
+                  {isLoading ? '...' : total}
+                </span>{' '}
+                prompts found
               </p>
               {/* Mobile sort */}
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="lg:hidden border rounded-xl px-3 py-2 text-sm outline-none"
-                style={{ 
-                  backgroundColor: 'rgba(var(--text-primary) / 0.05)', 
+                style={{
+                  backgroundColor: 'rgba(var(--text-primary) / 0.05)',
                   borderColor: 'rgba(var(--border-color) / 0.1)',
-                  color: 'rgb(var(--text-primary))'
+                  color: 'rgb(var(--text-primary))',
                 }}
               >
                 <option value="relevance" style={{ color: '#000' }}>Relevance</option>
@@ -245,11 +324,32 @@ const SearchPage = () => {
               </select>
             </div>
 
-            {results.length === 0 ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl bg-primary/5 animate-pulse"
+                    style={{ height: 280 }}
+                  />
+                ))}
+              </div>
+            ) : results.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-24"
+              >
                 <div className="text-6xl mb-4 opacity-50">🔍</div>
-                <h3 className="font-display font-bold text-2xl mb-2" style={{ color: 'rgb(var(--text-primary))' }}>No results found</h3>
-                <p style={{ color: 'rgba(var(--text-primary) / 0.5)' }}>Try different keywords or browse all categories</p>
+                <h3
+                  className="font-display font-bold text-2xl mb-2"
+                  style={{ color: 'rgb(var(--text-primary))' }}
+                >
+                  No results found
+                </h3>
+                <p style={{ color: 'rgba(var(--text-primary) / 0.5)' }}>
+                  Try different keywords or browse all categories
+                </p>
               </motion.div>
             ) : (
               <motion.div
@@ -260,7 +360,7 @@ const SearchPage = () => {
                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
               >
                 {results.map((prompt, i) => (
-                  <motion.div key={prompt.id} variants={itemVariants}>
+                  <motion.div key={prompt._id || prompt.id} variants={itemVariants}>
                     <PromptCard prompt={prompt} index={i} />
                   </motion.div>
                 ))}

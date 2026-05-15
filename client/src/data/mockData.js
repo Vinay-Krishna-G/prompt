@@ -1,20 +1,118 @@
 // Mock data for the AI Prompt Library Platform
 
 export const CATEGORIES = [
-  { id: 'cinematic', name: 'Cinematic', icon: '🎬', count: 2847, color: 'from-orange-500 to-red-600', description: 'Epic cinematic shots and film-quality visuals' },
-  { id: 'anime', name: 'Anime', icon: '⛩️', count: 1923, color: 'from-pink-500 to-purple-600', description: 'Japanese animation style artwork' },
-  { id: 'fashion', name: 'Fashion', icon: '👗', count: 1456, color: 'from-rose-500 to-pink-600', description: 'High-fashion editorial and runway looks' },
-  { id: 'luxury', name: 'Luxury', icon: '💎', count: 987, color: 'from-yellow-500 to-amber-600', description: 'Premium lifestyle and luxury brands' },
-  { id: 'fitness', name: 'Fitness', icon: '💪', count: 743, color: 'from-green-500 to-emerald-600', description: 'Athletic and health-focused imagery' },
-  { id: 'product-ads', name: 'Product Ads', icon: '📱', count: 1234, color: 'from-blue-500 to-indigo-600', description: 'Commercial product photography prompts' },
-  { id: 'thumbnails', name: 'Thumbnails', icon: '🖼️', count: 3102, color: 'from-purple-500 to-violet-600', description: 'YouTube and social media thumbnails' },
-  { id: 'gaming', name: 'Gaming', icon: '🎮', count: 2156, color: 'from-cyan-500 to-teal-600', description: 'Game art, characters, and environments' },
-  { id: 'cars', name: 'Cars', icon: '🚗', count: 876, color: 'from-slate-500 to-gray-600', description: 'Automotive photography and renders' },
-  { id: 'architecture', name: 'Architecture', icon: '🏛️', count: 654, color: 'from-stone-500 to-zinc-600', description: 'Buildings, interiors, and urban design' },
-  { id: 'ai-videos', name: 'AI Videos', icon: '🎥', count: 1789, color: 'from-indigo-500 to-purple-600', description: 'Video generation prompts for Veo, Kling, Runway' },
-  { id: 'cyberpunk', name: 'Cyberpunk', icon: '🌆', count: 1345, color: 'from-violet-500 to-fuchsia-600', description: 'Neon cities, dystopian futures, and cyber aesthetics' },
-  { id: 'portraits', name: 'Realistic Portraits', icon: '👤', count: 4521, color: 'from-teal-500 to-cyan-600', description: 'Photorealistic human portraits' },
-  { id: 'magazine', name: 'Magazine Shoots', icon: '📸', count: 892, color: 'from-amber-500 to-orange-600', description: 'Editorial magazine and press photography' },
+  {
+    id: 'cinematic',
+    name: 'Cinematic',
+    icon: '🎬',
+    count: 2847,
+    color: 'from-orange-500 to-red-600',
+    description: 'Epic cinematic shots and film-quality visuals',
+  },
+  {
+    id: 'anime',
+    name: 'Anime',
+    icon: '⛩️',
+    count: 1923,
+    color: 'from-pink-500 to-purple-600',
+    description: 'Japanese animation style artwork',
+  },
+  {
+    id: 'fashion',
+    name: 'Fashion',
+    icon: '👗',
+    count: 1456,
+    color: 'from-rose-500 to-pink-600',
+    description: 'High-fashion editorial and runway looks',
+  },
+  {
+    id: 'luxury',
+    name: 'Luxury',
+    icon: '💎',
+    count: 987,
+    color: 'from-yellow-500 to-amber-600',
+    description: 'Premium lifestyle and luxury brands',
+  },
+  {
+    id: 'fitness',
+    name: 'Fitness',
+    icon: '💪',
+    count: 743,
+    color: 'from-green-500 to-emerald-600',
+    description: 'Athletic and health-focused imagery',
+  },
+  {
+    id: 'product-ads',
+    name: 'Product Ads',
+    icon: '📱',
+    count: 1234,
+    color: 'from-blue-500 to-indigo-600',
+    description: 'Commercial product photography prompts',
+  },
+  {
+    id: 'thumbnails',
+    name: 'Thumbnails',
+    icon: '🖼️',
+    count: 3102,
+    color: 'from-purple-500 to-violet-600',
+    description: 'YouTube and social media thumbnails',
+  },
+  {
+    id: 'gaming',
+    name: 'Gaming',
+    icon: '🎮',
+    count: 2156,
+    color: 'from-cyan-500 to-teal-600',
+    description: 'Game art, characters, and environments',
+  },
+  {
+    id: 'cars',
+    name: 'Cars',
+    icon: '🚗',
+    count: 876,
+    color: 'from-slate-500 to-gray-600',
+    description: 'Automotive photography and renders',
+  },
+  {
+    id: 'architecture',
+    name: 'Architecture',
+    icon: '🏛️',
+    count: 654,
+    color: 'from-stone-500 to-zinc-600',
+    description: 'Buildings, interiors, and urban design',
+  },
+  {
+    id: 'ai-videos',
+    name: 'AI Videos',
+    icon: '🎥',
+    count: 1789,
+    color: 'from-indigo-500 to-purple-600',
+    description: 'Video generation prompts for Veo, Kling, Runway',
+  },
+  {
+    id: 'cyberpunk',
+    name: 'Cyberpunk',
+    icon: '🌆',
+    count: 1345,
+    color: 'from-violet-500 to-fuchsia-600',
+    description: 'Neon cities, dystopian futures, and cyber aesthetics',
+  },
+  {
+    id: 'portraits',
+    name: 'Realistic Portraits',
+    icon: '👤',
+    count: 4521,
+    color: 'from-teal-500 to-cyan-600',
+    description: 'Photorealistic human portraits',
+  },
+  {
+    id: 'magazine',
+    name: 'Magazine Shoots',
+    icon: '📸',
+    count: 892,
+    color: 'from-amber-500 to-orange-600',
+    description: 'Editorial magazine and press photography',
+  },
 ];
 
 export const PROMPTS = [
@@ -24,7 +122,8 @@ export const PROMPTS = [
     category: 'cyberpunk',
     categoryName: 'Cyberpunk',
     type: 'image',
-    prompt: 'Cinematic wide shot of a rain-soaked cyberpunk alley at night, neon signs in Japanese kanji reflecting off wet pavement, holographic advertisements, steam rising from vents, a lone figure in a trench coat, volumetric lighting, blade runner aesthetic, 8K ultra-detailed, photorealistic, --ar 16:9 --style raw --v 6.1',
+    prompt:
+      'Cinematic wide shot of a rain-soaked cyberpunk alley at night, neon signs in Japanese kanji reflecting off wet pavement, holographic advertisements, steam rising from vents, a lone figure in a trench coat, volumetric lighting, blade runner aesthetic, 8K ultra-detailed, photorealistic, --ar 16:9 --style raw --v 6.1',
     tags: ['neon', 'cyberpunk', 'rain', 'cinematic', 'blade runner'],
     aiModel: 'Midjourney v6.1',
     creator: { name: 'NeonDreamer', avatar: 'ND', verified: true },
@@ -50,7 +149,8 @@ export const PROMPTS = [
     category: 'cinematic',
     categoryName: 'Cinematic',
     type: 'image',
-    prompt: 'Magical forest with an ancient stone portal glowing with ethereal light, fireflies dancing in the mist, bioluminescent mushrooms, rays of golden light filtering through ancient oak trees, fantasy aesthetic, editorial photography, depth of field, --ar 2:3 --style raw --q 2',
+    prompt:
+      'Magical forest with an ancient stone portal glowing with ethereal light, fireflies dancing in the mist, bioluminescent mushrooms, rays of golden light filtering through ancient oak trees, fantasy aesthetic, editorial photography, depth of field, --ar 2:3 --style raw --q 2',
     tags: ['fantasy', 'forest', 'portal', 'magic', 'ethereal'],
     aiModel: 'DALL-E 3',
     creator: { name: 'PixelMage', avatar: 'PM', verified: false },
@@ -72,7 +172,8 @@ export const PROMPTS = [
     category: 'fashion',
     categoryName: 'Fashion',
     type: 'image',
-    prompt: 'Ultra-high-end fashion editorial, model in flowing silk gown standing in the Sahara desert at golden hour, dramatic shadows on sand dunes, Vogue magazine aesthetic, lens flare, shallow depth of field, warm golden tones, cinematic composition, shot on Hasselblad H6D --ar 3:4',
+    prompt:
+      'Ultra-high-end fashion editorial, model in flowing silk gown standing in the Sahara desert at golden hour, dramatic shadows on sand dunes, Vogue magazine aesthetic, lens flare, shallow depth of field, warm golden tones, cinematic composition, shot on Hasselblad H6D --ar 3:4',
     tags: ['fashion', 'editorial', 'desert', 'luxury', 'vogue'],
     aiModel: 'Stable Diffusion XL',
     creator: { name: 'LuxeVision', avatar: 'LV', verified: true },
@@ -94,7 +195,8 @@ export const PROMPTS = [
     category: 'anime',
     categoryName: 'Anime',
     type: 'image',
-    prompt: 'Hyperrealistic anime girl with silver hair and electric blue eyes, wearing a futuristic white outfit, cherry blossom petals floating in the wind, soft rim lighting, photorealistic skin texture, anime style but ultra detailed, 8K, --ar 3:4 --style anime --niji 6',
+    prompt:
+      'Hyperrealistic anime girl with silver hair and electric blue eyes, wearing a futuristic white outfit, cherry blossom petals floating in the wind, soft rim lighting, photorealistic skin texture, anime style but ultra detailed, 8K, --ar 3:4 --style anime --niji 6',
     tags: ['anime', 'portrait', 'hyperrealistic', 'niji', 'character'],
     aiModel: 'Midjourney Niji 6',
     creator: { name: 'AnimeForge', avatar: 'AF', verified: true },
@@ -116,7 +218,8 @@ export const PROMPTS = [
     category: 'cars',
     categoryName: 'Cars',
     type: 'image',
-    prompt: 'Photorealistic render of a sleek electric hypercar, matte black with glowing purple accent lines, parked on a rain-slicked city rooftop at night, reflections on wet surface, studio lighting mixed with city glow, automotive photography, ultra detailed, --ar 16:9',
+    prompt:
+      'Photorealistic render of a sleek electric hypercar, matte black with glowing purple accent lines, parked on a rain-slicked city rooftop at night, reflections on wet surface, studio lighting mixed with city glow, automotive photography, ultra detailed, --ar 16:9',
     tags: ['cars', 'automotive', 'electric', 'futuristic', 'render'],
     aiModel: 'Midjourney v6.1',
     creator: { name: 'AutoVision', avatar: 'AV', verified: false },
@@ -138,7 +241,8 @@ export const PROMPTS = [
     category: 'ai-videos',
     categoryName: 'AI Videos',
     type: 'video',
-    prompt: 'Cinematic drone shot slowly rising over a misty ocean at sunrise, golden hour light reflecting off calm waves, a lone sailboat in the distance, volumetric fog, photorealistic, ultra cinematic, shot on RED camera, 8K, slow motion, peaceful, 8 seconds, Veo2 style',
+    prompt:
+      'Cinematic drone shot slowly rising over a misty ocean at sunrise, golden hour light reflecting off calm waves, a lone sailboat in the distance, volumetric fog, photorealistic, ultra cinematic, shot on RED camera, 8K, slow motion, peaceful, 8 seconds, Veo2 style',
     tags: ['veo', 'ocean', 'sunrise', 'drone', 'cinematic'],
     aiModel: 'Veo 2',
     creator: { name: 'CineAI', avatar: 'CA', verified: true },
@@ -160,7 +264,8 @@ export const PROMPTS = [
     category: 'product-ads',
     categoryName: 'Product Ads',
     type: 'video',
-    prompt: 'Macro close-up video of luxury perfume bottle, slow rotation, water droplets forming on glass, black velvet background, studio lighting with purple rim light, cinematic product advertisement style, 4K, smooth 60fps motion, Kling AI v1.6',
+    prompt:
+      'Macro close-up video of luxury perfume bottle, slow rotation, water droplets forming on glass, black velvet background, studio lighting with purple rim light, cinematic product advertisement style, 4K, smooth 60fps motion, Kling AI v1.6',
     tags: ['kling', 'product', 'luxury', 'perfume', 'macro'],
     aiModel: 'Kling AI v1.6',
     creator: { name: 'AdGenius', avatar: 'AG', verified: true },
@@ -182,7 +287,8 @@ export const PROMPTS = [
     category: 'architecture',
     categoryName: 'Architecture',
     type: 'image',
-    prompt: 'Futuristic organic architecture inspired by Zaha Hadid, flowing white concrete curves, interior with natural light from skylights, minimalist luxury, editorial architectural photography, wide angle shot, ultra detailed, 8K, --ar 16:9',
+    prompt:
+      'Futuristic organic architecture inspired by Zaha Hadid, flowing white concrete curves, interior with natural light from skylights, minimalist luxury, editorial architectural photography, wide angle shot, ultra detailed, 8K, --ar 16:9',
     tags: ['architecture', 'futuristic', 'zaha hadid', 'minimalist'],
     aiModel: 'Midjourney v6.1',
     creator: { name: 'ArchVision', avatar: 'AV', verified: false },
@@ -204,7 +310,8 @@ export const PROMPTS = [
     category: 'gaming',
     categoryName: 'Gaming',
     type: 'image',
-    prompt: 'Epic dark fantasy RPG character, a female paladin in ornate black and gold armor, glowing runic inscriptions, holding a massive crystal sword, dramatic backlighting, dark atmospheric background, game cinematic art style, ArtStation quality, highly detailed, --ar 3:4',
+    prompt:
+      'Epic dark fantasy RPG character, a female paladin in ornate black and gold armor, glowing runic inscriptions, holding a massive crystal sword, dramatic backlighting, dark atmospheric background, game cinematic art style, ArtStation quality, highly detailed, --ar 3:4',
     tags: ['gaming', 'rpg', 'fantasy', 'character', 'paladin'],
     aiModel: 'SDXL',
     creator: { name: 'GameForge', avatar: 'GF', verified: true },
@@ -226,7 +333,8 @@ export const PROMPTS = [
     category: 'magazine',
     categoryName: 'Magazine Shoots',
     type: 'image',
-    prompt: 'Vogue magazine cover quality photo, a stunning Black model with natural hair adorned with gold jewelry, wearing a sculptural avant-garde white dress, clean white studio background, dramatic lighting, sophisticated composition, --ar 2:3 --style raw --v 6.1',
+    prompt:
+      'Vogue magazine cover quality photo, a stunning Black model with natural hair adorned with gold jewelry, wearing a sculptural avant-garde white dress, clean white studio background, dramatic lighting, sophisticated composition, --ar 2:3 --style raw --v 6.1',
     tags: ['magazine', 'vogue', 'editorial', 'fashion', 'portrait'],
     aiModel: 'Midjourney v6.1',
     creator: { name: 'VogueMind', avatar: 'VM', verified: true },
@@ -248,7 +356,8 @@ export const PROMPTS = [
     category: 'ai-videos',
     categoryName: 'AI Videos',
     type: 'video',
-    prompt: 'Aerial time-lapse of Tokyo city at night, lights streaming in fast motion, neon signs blurring, ultra smooth camera pan from west to east, cinematic, 4K HDR, Runway Gen-3 Alpha, motion brush for light trails, 10 seconds',
+    prompt:
+      'Aerial time-lapse of Tokyo city at night, lights streaming in fast motion, neon signs blurring, ultra smooth camera pan from west to east, cinematic, 4K HDR, Runway Gen-3 Alpha, motion brush for light trails, 10 seconds',
     tags: ['runway', 'tokyo', 'timelapse', 'night', 'aerial'],
     aiModel: 'Runway Gen-3',
     creator: { name: 'RunwayArtist', avatar: 'RA', verified: false },
@@ -270,7 +379,8 @@ export const PROMPTS = [
     category: 'fitness',
     categoryName: 'Fitness',
     type: 'image',
-    prompt: 'Athletic fitness model, defined muscles, golden hour lighting on a rooftop, wearing premium sports gear, sweat glistening in sunlight, motivational energy, commercial fitness photography style, sharp focus, warm tones, --ar 4:5',
+    prompt:
+      'Athletic fitness model, defined muscles, golden hour lighting on a rooftop, wearing premium sports gear, sweat glistening in sunlight, motivational energy, commercial fitness photography style, sharp focus, warm tones, --ar 4:5',
     tags: ['fitness', 'athletic', 'golden hour', 'commercial', 'health'],
     aiModel: 'DALL-E 3',
     creator: { name: 'FitVision', avatar: 'FV', verified: false },
@@ -288,10 +398,10 @@ export const PROMPTS = [
   },
 ];
 
-export const VIDEO_PROMPTS = PROMPTS.filter(p => p.type === 'video');
-export const IMAGE_PROMPTS = PROMPTS.filter(p => p.type === 'image');
-export const TRENDING_PROMPTS = PROMPTS.filter(p => p.trending);
-export const FEATURED_PROMPTS = PROMPTS.filter(p => p.featured);
+export const VIDEO_PROMPTS = PROMPTS.filter((p) => p.type === 'video');
+export const IMAGE_PROMPTS = PROMPTS.filter((p) => p.type === 'image');
+export const TRENDING_PROMPTS = PROMPTS.filter((p) => p.trending);
+export const FEATURED_PROMPTS = PROMPTS.filter((p) => p.featured);
 
 export const AI_MODELS = [
   'Midjourney v6.1',
@@ -307,9 +417,20 @@ export const AI_MODELS = [
 ];
 
 export const TRENDING_TAGS = [
-  'cyberpunk', 'cinematic', 'anime', 'portrait', 'fashion',
-  'fantasy', 'neon', 'veo', 'kling', 'runway',
-  'luxury', 'gaming', 'hyperrealistic', 'editorial',
+  'cyberpunk',
+  'cinematic',
+  'anime',
+  'portrait',
+  'fashion',
+  'fantasy',
+  'neon',
+  'veo',
+  'kling',
+  'runway',
+  'luxury',
+  'gaming',
+  'hyperrealistic',
+  'editorial',
 ];
 
 export const ADMIN_STATS = {
@@ -323,8 +444,36 @@ export const ADMIN_STATS = {
 };
 
 export const COMMENTS = [
-  { id: '1', user: 'CreativeAlex', avatar: 'CA', text: 'This prompt is absolutely incredible! Used it for my client project and they loved it.', time: '2 hours ago', likes: 23 },
-  { id: '2', user: 'ArtificialMuse', avatar: 'AM', text: 'The lighting parameters make all the difference. Thanks for sharing!', time: '5 hours ago', likes: 17 },
-  { id: '3', user: 'NeonDreams', avatar: 'ND', text: 'Tried this with Midjourney v6.1 and the results were stunning. 10/10!', time: '1 day ago', likes: 45 },
-  { id: '4', user: 'PixelProphet', avatar: 'PP', text: 'Would love to see variations of this with different color schemes.', time: '2 days ago', likes: 12 },
+  {
+    id: '1',
+    user: 'CreativeAlex',
+    avatar: 'CA',
+    text: 'This prompt is absolutely incredible! Used it for my client project and they loved it.',
+    time: '2 hours ago',
+    likes: 23,
+  },
+  {
+    id: '2',
+    user: 'ArtificialMuse',
+    avatar: 'AM',
+    text: 'The lighting parameters make all the difference. Thanks for sharing!',
+    time: '5 hours ago',
+    likes: 17,
+  },
+  {
+    id: '3',
+    user: 'NeonDreams',
+    avatar: 'ND',
+    text: 'Tried this with Midjourney v6.1 and the results were stunning. 10/10!',
+    time: '1 day ago',
+    likes: 45,
+  },
+  {
+    id: '4',
+    user: 'PixelProphet',
+    avatar: 'PP',
+    text: 'Would love to see variations of this with different color schemes.',
+    time: '2 days ago',
+    likes: 12,
+  },
 ];

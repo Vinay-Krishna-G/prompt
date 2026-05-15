@@ -19,6 +19,19 @@ const categorySchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    icon: {
+      type: String,
+      default: '📁',
+      trim: true,
+    },
+    image: {
+      type: String, // Cloudinary URL for category banner
+      trim: true,
+    },
+    promptCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

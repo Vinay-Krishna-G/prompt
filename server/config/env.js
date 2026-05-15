@@ -76,4 +76,7 @@ export const env = Object.freeze({
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
+  
+  resendApiKey: process.env.RESEND_API_KEY,
+  emailFrom: process.env.EMAIL_FROM,
 });

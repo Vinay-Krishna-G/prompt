@@ -1,7 +1,26 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Disc, Sparkles, Ratio, Sliders, Layers, Palette, Wand2, Shuffle, ArrowLeft, Heart, Bookmark, BookmarkCheck, Copy, Play, Share2, Download, Calendar, CheckCheck } from 'lucide-react';
+import {
+  Disc,
+  Sparkles,
+  Ratio,
+  Sliders,
+  Layers,
+  Palette,
+  Wand2,
+  Shuffle,
+  ArrowLeft,
+  Heart,
+  Bookmark,
+  BookmarkCheck,
+  Copy,
+  Play,
+  Share2,
+  Download,
+  Calendar,
+  CheckCheck,
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PromptCard from '../components/PromptCard';
 import ImageWithPlaceholder from '../components/ImageWithPlaceholder';
@@ -54,10 +73,10 @@ const PromptDetailPage = () => {
         const data = await getPromptBySlug(id); // id param actually holds the slug
         setPrompt(data);
         addRecentlyViewed(data.slug || data._id);
-        
+
         // Fetch similar (just fetching a generic list for now)
         const similarData = await getPrompts({ limit: 4 });
-        setSimilarPrompts(similarData.prompts.filter(p => p._id !== data._id).slice(0, 4));
+        setSimilarPrompts(similarData.prompts.filter((p) => p._id !== data._id).slice(0, 4));
       } catch (err) {
         console.error('Failed to load prompt', err);
         setError('Failed to load prompt details.');
@@ -66,12 +85,11 @@ const PromptDetailPage = () => {
       }
     };
     fetchDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const paramsEntries = useMemo(
     () => Object.entries(prompt?.params || defaultParams),
-    [prompt?.params]
+    [prompt?.params],
   );
 
   if (isLoading) return <Loader fullScreen />;
@@ -81,14 +99,16 @@ const PromptDetailPage = () => {
         <div>
           <Disc size={32} className="mx-auto text-red-500/50 mb-4" />
           <h2 className="text-xl font-medium mb-2">{error || 'Prompt not found'}</h2>
-          <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-primary">Go Back</button>
+          <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-primary">
+            Go Back
+          </button>
         </div>
       </div>
     );
   }
 
-  const isSaved = savedPrompts.includes(prompt.slug || prompt._id);
-  const isLiked = likedPrompts.includes(prompt.slug || prompt._id);
+  const isSaved = savedPrompts.includes(prompt._id?.toString());
+  const isLiked = likedPrompts.includes(prompt._id?.toString());
 
   const dominantColor = prompt.dominantColor || '#0a0f1c';
 
@@ -105,14 +125,14 @@ const PromptDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-28 md:pt-24 md:pb-32 bg-dark-50 relative overflow-hidden">
+    <div className="min-h-screen pt-20 pb-28 md:pt-24 md:pb-32 bg-background relative overflow-hidden">
       <div className="absolute top-0 inset-x-0 h-[min(70vh,720px)] pointer-events-none z-0 overflow-hidden opacity-25">
         <img
           src={prompt.previewImage}
           alt=""
           className="w-full h-full object-cover blur-[100px] scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-dark-50/30 via-dark-50/80 to-dark-50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/80 to-background" />
       </div>
 
       <div className="section-contain relative z-10">
@@ -134,7 +154,7 @@ const PromptDetailPage = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.72, ease: EASE_PREMIUM }}
-              className="relative rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-dark-200 group"
+              className="relative rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated group"
             >
               {prompt.type === 'video' ? (
                 <div className="relative aspect-video">
@@ -208,14 +228,14 @@ const PromptDetailPage = () => {
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  className="p-2.5 rounded-full text-gray-400 hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                  className="p-2.5 rounded-full text-muted hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                   aria-label="Share"
                 >
                   <Share2 size={16} />
                 </button>
                 <button
                   type="button"
-                  className="p-2.5 rounded-full text-gray-400 hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                  className="p-2.5 rounded-full text-muted hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                   aria-label="Download"
                 >
                   <Download size={16} />
@@ -233,35 +253,47 @@ const PromptDetailPage = () => {
             >
               <div className="mb-10 md:mb-12 border-b border-primary/[0.04] pb-10 md:pb-12">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-full bg-primary/[0.05] flex items-center justify-center border border-primary/[0.06] text-xs text-gray-200 font-medium overflow-hidden">
+                  <div className="w-9 h-9 rounded-full bg-primary/[0.05] flex items-center justify-center border border-primary/[0.06] text-xs text-primary font-medium overflow-hidden">
                     {prompt.creator?.avatar && prompt.creator.avatar.length > 2 ? (
-                      <img src={prompt.creator.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      <img
+                        src={prompt.creator.avatar}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : prompt.creator?.name ? (
+                      prompt.creator.name.charAt(0).toUpperCase()
                     ) : (
-                      prompt.creator?.name ? prompt.creator.name.charAt(0).toUpperCase() : 'U'
+                      'U'
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-200">{prompt.creator?.name || 'Unknown'}</p>
-                    <p className="text-[11px] text-gray-500 uppercase tracking-widest font-medium mt-0.5">
+                    <p className="text-sm font-medium text-primary">
+                      {prompt.creator?.name || 'Unknown'}
+                    </p>
+                    <p className="text-[11px] text-muted uppercase tracking-widest font-medium mt-0.5">
                       {prompt.category || prompt.categoryName}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
-                      onClick={() => toggleLike(prompt.slug || prompt._id)}
-                      className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-400/90 transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-primary/[0.03]"
+                      onClick={() => toggleLike(prompt._id?.toString())}
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted hover:text-red-400/90 transition-colors duration-300 px-2 py-1 rounded-lg hover:bg-primary/[0.03]"
                     >
                       <Heart size={14} className={isLiked ? 'fill-red-400 text-red-400' : ''} />
                       {prompt.likes}
                     </button>
                     <button
                       type="button"
-                      onClick={() => toggleSave(prompt.slug || prompt._id)}
-                      className="p-2.5 rounded-full bg-primary/[0.03] border border-primary/[0.06] text-gray-300 hover:text-primary hover:bg-primary/[0.07] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                      onClick={() => toggleSave(prompt._id?.toString())}
+                      className="p-2.5 rounded-full bg-primary/[0.03] border border-primary/[0.06] text-primary/70 hover:text-primary hover:bg-primary/[0.07] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
                       aria-label={isSaved ? 'Unsave' : 'Save'}
                     >
-                      {isSaved ? <BookmarkCheck size={16} className="text-indigo-400" /> : <Bookmark size={16} />}
+                      {isSaved ? (
+                        <BookmarkCheck size={16} className="text-indigo-400" />
+                      ) : (
+                        <Bookmark size={16} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -270,26 +302,31 @@ const PromptDetailPage = () => {
                   {prompt.title}
                 </h1>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-gray-500">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-muted">
                     <Calendar size={11} />
                     {new Date(prompt.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-gray-500">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-muted">
                     {prompt.type === 'video' ? 'Video template' : 'Image template'}
                   </span>
                 </div>
-                <p className="text-[15px] leading-relaxed" style={{ color: 'rgba(var(--text-primary) / 0.52)' }}>
-                  High-fidelity neural generation tailored for visual engineers. Parameters below match this vault
-                  entry.
+                <p
+                  className="text-[15px] leading-relaxed"
+                  style={{ color: 'rgba(var(--text-primary) / 0.52)' }}
+                >
+                  High-fidelity neural generation tailored for visual engineers. Parameters below
+                  match this vault entry.
                 </p>
               </div>
 
               <div className="mb-10 md:mb-12">
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 flex items-center gap-2 mb-4">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted flex items-center gap-2 mb-4">
                   <Disc size={12} className="opacity-45" /> Core template
                 </h3>
-                <div className="relative group syntax-box-minimal bg-dark-200 text-gray-200 p-6 md:p-7 leading-relaxed border border-primary/[0.05] rounded-2xl font-mono text-[13px] selection:bg-primary/10">
-                  <div className="mb-24 md:mb-28 select-all opacity-90 pr-2">{prompt.promptText || prompt.prompt}</div>
+                <div className="relative group syntax-box-minimal bg-elevated text-primary p-6 md:p-7 leading-relaxed border border-primary/[0.05] rounded-2xl font-mono text-[13px] selection:bg-primary/10">
+                  <div className="mb-24 md:mb-28 select-all opacity-90 pr-2">
+                    {prompt.promptText || prompt.prompt}
+                  </div>
                   <div className="absolute bottom-4 right-4 left-4 flex flex-wrap gap-2 justify-end">
                     <button
                       type="button"
@@ -297,10 +334,14 @@ const PromptDetailPage = () => {
                       className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)] ${
                         remixCopied
                           ? 'border-emerald-500/25 text-emerald-400 bg-emerald-500/10'
-                          : 'border-primary/[0.1] text-gray-200 bg-primary/[0.04] hover:bg-primary/[0.07] hover:border-primary/[0.14]'
+                          : 'border-primary/[0.1] text-primary/90 bg-primary/[0.04] hover:bg-primary/[0.07] hover:border-primary/[0.14]'
                       }`}
                     >
-                      {remixCopied ? <CheckCheck size={15} /> : <Shuffle size={15} className="opacity-80" />}
+                      {remixCopied ? (
+                        <CheckCheck size={15} />
+                      ) : (
+                        <Shuffle size={15} className="opacity-80" />
+                      )}
                       {remixCopied ? 'Remix copied' : 'Remix prompt'}
                     </button>
                     <button
@@ -309,7 +350,7 @@ const PromptDetailPage = () => {
                       className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
                         copied
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                          : 'bg-primary text-background hover:bg-gray-100 border border-transparent'
+                          : 'bg-primary text-background hover:opacity-90 border border-transparent'
                       }`}
                     >
                       {copied ? <CheckCheck size={15} /> : <Copy size={15} />}
@@ -326,7 +367,7 @@ const PromptDetailPage = () => {
                   borderColor: 'rgba(var(--border-color) / 0.06)',
                 }}
               >
-                <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 mb-5 flex items-center gap-2">
+                <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted mb-5 flex items-center gap-2">
                   <Wand2 size={12} className="opacity-45" />
                   Configuration
                 </h4>
@@ -336,11 +377,13 @@ const PromptDetailPage = () => {
                     return (
                       <span
                         key={key}
-                        className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3 py-1.5 text-[12px] border border-primary/[0.07] bg-primary/[0.03] text-gray-300"
+                        className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3 py-1.5 text-[12px] border border-primary/[0.07] bg-primary/[0.03] text-primary/70"
                       >
                         <Icon size={13} className="opacity-45 shrink-0" />
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500">{key}</span>
-                        <span className="text-gray-200 font-medium">{val}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-muted">
+                          {key}
+                        </span>
+                        <span className="text-primary font-medium">{val}</span>
                       </span>
                     );
                   })}
@@ -359,7 +402,7 @@ const PromptDetailPage = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-7">
             {similarPrompts.map((p, i) => (
-                <PromptCard key={p._id || p.id} prompt={p} index={i} />
+              <PromptCard key={p._id || p.id} prompt={p} index={i} />
             ))}
           </div>
         </div>

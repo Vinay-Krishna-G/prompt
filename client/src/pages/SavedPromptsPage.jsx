@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { Bookmark, Clock, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PromptCard from '../components/PromptCard';
-import { PROMPTS } from '../data/mockData';
+import { getSavedPrompts, getLikedPrompts } from '../services/promptService';
 import { useApp } from '../context/AppContext';
+import { useState, useEffect } from 'react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -16,10 +17,27 @@ const itemVariants = {
 
 const SavedPromptsPage = () => {
   const { savedPrompts, likedPrompts, recentlyViewed, isLoggedIn, user } = useApp();
+  const [saved, setSaved] = useState([]);
+  const [liked, setLiked] = useState([]);
+  const [recent, setRecent] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const saved = PROMPTS.filter(p => savedPrompts.includes(p.id));
-  const liked = PROMPTS.filter(p => likedPrompts.includes(p.id));
-  const recent = PROMPTS.filter(p => recentlyViewed.includes(p.id)).slice(0, 8);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isLoggedIn) return;
+      try {
+        setIsLoading(true);
+        const [savedRes, likedRes] = await Promise.all([getSavedPrompts(), getLikedPrompts()]);
+        setSaved(savedRes || []);
+        setLiked(likedRes || []);
+      } catch (err) {
+        console.error('Failed to fetch profile data', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) {
     return (
@@ -29,15 +47,23 @@ const SavedPromptsPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center p-10 glass-card max-w-md mx-4"
         >
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}>
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}
+          >
             <Bookmark size={28} className="text-primary" />
           </div>
           <h2 className="font-display font-bold text-2xl text-primary mb-2">Login Required</h2>
-          <p className="text-primary/50 text-sm mb-6">Create a free account to save prompts and access your library.</p>
+          <p className="text-primary/50 text-sm mb-6">
+            Create a free account to save prompts and access your library.
+          </p>
           <div className="flex gap-3 justify-center">
-            <Link to="/login" className="btn-secondary">Log In</Link>
-            <Link to="/register" className="btn-primary">Sign Up Free</Link>
+            <Link to="/login" className="btn-secondary">
+              Log In
+            </Link>
+            <Link to="/register" className="btn-primary">
+              Sign Up Free
+            </Link>
           </div>
         </motion.div>
       </div>
@@ -54,8 +80,10 @@ const SavedPromptsPage = () => {
           transition={{ duration: 0.6 }}
           className="glass-card p-8 mb-10 flex flex-col sm:flex-row items-center gap-6"
         >
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-black flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}>
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-black flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}
+          >
             {user?.avatar || 'U'}
           </div>
           <div className="text-center sm:text-left">
@@ -97,13 +125,17 @@ const SavedPromptsPage = () => {
           {saved.length === 0 ? (
             <motion.div variants={itemVariants} className="text-center py-16 glass-card">
               <Bookmark size={40} className="text-primary/20 mx-auto mb-3" />
-              <p className="text-primary/40">No saved prompts yet. Browse and save your favorites!</p>
-              <Link to="/" className="btn-primary mt-4 inline-flex">Explore Prompts</Link>
+              <p className="text-primary/40">
+                No saved prompts yet. Browse and save your favorites!
+              </p>
+              <Link to="/" className="btn-primary mt-4 inline-flex">
+                Explore Prompts
+              </Link>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {saved.map((prompt, i) => (
-                <motion.div key={prompt.id} variants={itemVariants}>
+                <motion.div key={prompt._id || prompt.id} variants={itemVariants}>
                   <PromptCard prompt={prompt} index={i} />
                 </motion.div>
               ))}
@@ -128,12 +160,14 @@ const SavedPromptsPage = () => {
           {liked.length === 0 ? (
             <motion.div variants={itemVariants} className="text-center py-16 glass-card">
               <Heart size={40} className="text-primary/20 mx-auto mb-3" />
-              <p className="text-primary/40">No liked prompts yet. Like prompts you find inspiring!</p>
+              <p className="text-primary/40">
+                No liked prompts yet. Like prompts you find inspiring!
+              </p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {liked.map((prompt, i) => (
-                <motion.div key={prompt.id} variants={itemVariants}>
+                <motion.div key={prompt._id || prompt.id} variants={itemVariants}>
                   <PromptCard prompt={prompt} index={i} />
                 </motion.div>
               ))}
@@ -155,7 +189,7 @@ const SavedPromptsPage = () => {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {recent.map((prompt, i) => (
-                <motion.div key={prompt.id} variants={itemVariants}>
+                <motion.div key={prompt._id || prompt.id} variants={itemVariants}>
                   <PromptCard prompt={prompt} index={i} />
                 </motion.div>
               ))}

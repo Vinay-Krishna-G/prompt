@@ -24,7 +24,7 @@ export const uploadAsset = async (file) => {
       'Content-Type': 'multipart/form-data',
     },
   });
-  
+
   return data.data; // { url, publicId, resourceType, format }
 };
 
@@ -36,4 +36,24 @@ export const updatePrompt = async (id, promptData) => {
 export const deletePrompt = async (id) => {
   const { data } = await api.delete(`/prompts/${id}`);
   return data.data;
+};
+
+export const toggleLike = async (id) => {
+  const { data } = await api.post(`/prompts/${id}/like`);
+  return data.data;
+};
+
+export const toggleSave = async (id) => {
+  const { data } = await api.post(`/prompts/${id}/save`);
+  return data.data;
+};
+
+export const getSavedPrompts = async () => {
+  const { data } = await api.get('/prompts/user/saved');
+  return data.data.prompts;
+};
+
+export const getLikedPrompts = async () => {
+  const { data } = await api.get('/prompts/user/liked');
+  return data.data.prompts;
 };

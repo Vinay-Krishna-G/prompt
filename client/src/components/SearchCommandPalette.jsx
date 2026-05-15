@@ -29,7 +29,7 @@ const SearchCommandPalette = () => {
       (p) =>
         p.title.toLowerCase().includes(q) ||
         p.tags.some((t) => t.toLowerCase().includes(q)) ||
-        p.aiModel.toLowerCase().includes(q)
+        p.aiModel.toLowerCase().includes(q),
     ).slice(0, MAX_SUGGESTIONS);
   }, [query]);
 
@@ -44,7 +44,7 @@ const SearchCommandPalette = () => {
       setActiveIndex(-1);
       navigate(`/search?q=${encodeURIComponent(t)}`);
     },
-    [query, addRecentSearch, navigate, setCommandPaletteOpen, setSearchQuery]
+    [query, addRecentSearch, navigate, setCommandPaletteOpen, setSearchQuery],
   );
 
   useEffect(() => {
@@ -130,8 +130,7 @@ const SearchCommandPalette = () => {
             style={{
               backgroundColor: 'rgba(var(--bg-surface) / 0.92)',
               borderColor: 'rgba(var(--border-color) / 0.08)',
-              boxShadow:
-                '0 24px 80px -24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)',
+              boxShadow: '0 24px 80px -24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)',
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
@@ -232,7 +231,9 @@ const SearchCommandPalette = () => {
                           type="button"
                           onClick={() => goSearch(p.title)}
                           className={`w-full text-left px-3 py-2.5 rounded-xl text-[14px] transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
-                            i === activeIndex ? 'bg-[rgba(var(--text-primary)/0.08)]' : 'hover:bg-[rgba(var(--text-primary)/0.04)]'
+                            i === activeIndex
+                              ? 'bg-[rgba(var(--text-primary)/0.08)]'
+                              : 'hover:bg-[rgba(var(--text-primary)/0.04)]'
                           }`}
                           style={{ color: 'rgb(var(--text-primary))' }}
                         >

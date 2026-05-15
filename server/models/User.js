@@ -48,6 +48,26 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otpCode: {
+      type: String,
+      select: false,
+    },
+    otpExpires: {
+      type: Date,
+      select: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -80,6 +100,7 @@ userSchema.methods.toSafeObject = function toSafeObject() {
     role: this.role,
     savedPrompts: this.savedPrompts,
     likedPrompts: this.likedPrompts,
+    isVerified: this.isVerified,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };

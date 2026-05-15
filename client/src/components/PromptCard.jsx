@@ -120,10 +120,16 @@ const PromptCard = ({ prompt, index = 0 }) => {
                 </h3>
               </div>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-[11px] font-normal" style={{ color: 'rgba(var(--text-primary) / 0.48)' }}>
+                <span
+                  className="text-[11px] font-normal"
+                  style={{ color: 'rgba(var(--text-primary) / 0.48)' }}
+                >
                   {prompt.category || prompt.categoryName}
                 </span>
-                <span className="flex items-center gap-0.5 text-[11px]" style={{ color: 'rgba(var(--text-primary) / 0.48)' }}>
+                <span
+                  className="flex items-center gap-0.5 text-[11px]"
+                  style={{ color: 'rgba(var(--text-primary) / 0.48)' }}
+                >
                   <Heart size={10} className={isLiked ? 'fill-red-400 text-red-400' : ''} />
                   {prompt.likes > 1000 ? `${(prompt.likes / 1000).toFixed(1)}k` : prompt.likes}
                 </span>

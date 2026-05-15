@@ -58,15 +58,15 @@ const VideoCard = ({ prompt, index }) => {
 
             {/* Platform badge */}
             <div className="absolute top-3 left-3">
-              <span className="badge-minimal text-xs px-3 py-1">
-                {prompt.aiModel}
-              </span>
+              <span className="badge-minimal text-xs px-3 py-1">{prompt.aiModel}</span>
             </div>
 
             {/* Duration badge */}
             <div className="absolute bottom-3 right-3">
-              <span className="px-2 py-1 rounded-lg text-xs font-semibold text-primary"
-                style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
+              <span
+                className="px-2 py-1 rounded-lg text-xs font-semibold text-primary"
+                style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+              >
                 0:08
               </span>
             </div>
@@ -74,13 +74,26 @@ const VideoCard = ({ prompt, index }) => {
 
           {/* Info */}
           <div className="p-4">
-            <h3 className="font-semibold text-sm mb-2 line-clamp-2" style={{ color: 'rgb(var(--text-primary))' }}>{prompt.title}</h3>
+            <h3
+              className="font-semibold text-sm mb-2 line-clamp-2"
+              style={{ color: 'rgb(var(--text-primary))' }}
+            >
+              {prompt.title}
+            </h3>
             <div className="flex flex-wrap gap-1 mb-3">
-              {prompt.tags.slice(0, 3).map(tag => (
-                <span key={tag} className="badge-minimal text-[10px] px-2 py-0.5 rounded-full border opacity-80">#{tag}</span>
+              {prompt.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="badge-minimal text-[10px] px-2 py-0.5 rounded-full border opacity-80"
+                >
+                  #{tag}
+                </span>
               ))}
             </div>
-            <div className="flex items-center justify-between text-xs font-medium" style={{ color: 'rgba(var(--text-primary) / 0.5)' }}>
+            <div
+              className="flex items-center justify-between text-xs font-medium"
+              style={{ color: 'rgba(var(--text-primary) / 0.5)' }}
+            >
               <div className="flex items-center gap-1.5">
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-primary/90 border border-primary/10"
@@ -108,11 +121,12 @@ const VideoCard = ({ prompt, index }) => {
 
 const VideoPromptsPage = () => {
   const [platform, setPlatform] = useState('all');
-  const videoPrompts = PROMPTS.filter(p => p.type === 'video');
+  const videoPrompts = PROMPTS.filter((p) => p.type === 'video');
 
-  const filteredVideos = platform === 'all'
-    ? videoPrompts
-    : videoPrompts.filter(p => p.aiModel.toLowerCase().includes(platform));
+  const filteredVideos =
+    platform === 'all'
+      ? videoPrompts
+      : videoPrompts.filter((p) => p.aiModel.toLowerCase().includes(platform));
 
   return (
     <div className="min-h-screen pt-24 pb-24">
@@ -126,14 +140,19 @@ const VideoPromptsPage = () => {
         >
           <div className="flex items-center gap-2 mb-4">
             <Play size={18} className="text-accent-400" />
-            <span className="text-sm font-semibold text-accent-400 uppercase tracking-widest">Video Prompts</span>
+            <span className="text-sm font-semibold text-accent-400 uppercase tracking-widest">
+              Video Prompts
+            </span>
           </div>
-          <h1 className="font-display font-bold tracking-tightest text-5xl sm:text-6xl mb-3" style={{ color: 'rgb(var(--text-primary))' }}>
+          <h1
+            className="font-display font-bold tracking-tightest text-5xl sm:text-6xl mb-3"
+            style={{ color: 'rgb(var(--text-primary))' }}
+          >
             AI Video Prompts
           </h1>
           <p className="text-lg max-w-2xl" style={{ color: 'rgba(var(--text-primary) / 0.6)' }}>
-            Cinematic video prompts for Veo 2, Kling AI, Runway Gen-3, Sora, and more.
-            Copy and paste directly into your AI video tool.
+            Cinematic video prompts for Veo 2, Kling AI, Runway Gen-3, Sora, and more. Copy and
+            paste directly into your AI video tool.
           </p>
         </motion.div>
 
@@ -176,9 +195,12 @@ const VideoPromptsPage = () => {
         {/* Videos grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {filteredVideos.length > 0
-            ? filteredVideos.map((prompt, i) => <VideoCard key={prompt.id} prompt={prompt} index={i} />)
-            : videoPrompts.map((prompt, i) => <VideoCard key={prompt.id} prompt={prompt} index={i} />)
-          }
+            ? filteredVideos.map((prompt, i) => (
+                <VideoCard key={prompt.id} prompt={prompt} index={i} />
+              ))
+            : videoPrompts.map((prompt, i) => (
+                <VideoCard key={prompt.id} prompt={prompt} index={i} />
+              ))}
         </div>
 
         {/* Tips section */}
@@ -187,23 +209,50 @@ const VideoPromptsPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="rounded-2xl p-8 border shadow-sm"
-          style={{ 
+          style={{
             backgroundColor: 'rgba(var(--text-primary) / 0.02)',
-            borderColor: 'rgba(var(--border-color) / 0.05)' 
+            borderColor: 'rgba(var(--border-color) / 0.05)',
           }}
         >
-          <h2 className="font-display font-bold text-2xl mb-6" style={{ color: 'rgb(var(--text-primary))' }}>Video Prompt Tips</h2>
+          <h2
+            className="font-display font-bold text-2xl mb-6"
+            style={{ color: 'rgb(var(--text-primary))' }}
+          >
+            Video Prompt Tips
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: '🎬', title: 'Camera Movements', desc: 'Use terms like "slow drone push-in", "tracking shot", "dolly zoom" for cinematic motion' },
-              { icon: '⚡', title: 'Duration & Style', desc: 'Specify duration (4-10 seconds), fps (24fps cinematic, 60fps smooth), and aspect ratio' },
-              { icon: '🎨', title: 'Lighting & Mood', desc: 'Include lighting like "golden hour", "volumetric fog", "neon reflections" for atmosphere' },
+              {
+                icon: '🎬',
+                title: 'Camera Movements',
+                desc: 'Use terms like "slow drone push-in", "tracking shot", "dolly zoom" for cinematic motion',
+              },
+              {
+                icon: '⚡',
+                title: 'Duration & Style',
+                desc: 'Specify duration (4-10 seconds), fps (24fps cinematic, 60fps smooth), and aspect ratio',
+              },
+              {
+                icon: '🎨',
+                title: 'Lighting & Mood',
+                desc: 'Include lighting like "golden hour", "volumetric fog", "neon reflections" for atmosphere',
+              },
             ].map((tip) => (
               <div key={tip.title} className="flex gap-3">
                 <span className="text-2xl flex-shrink-0">{tip.icon}</span>
                 <div>
-                  <h3 className="font-semibold text-sm mb-1" style={{ color: 'rgb(var(--text-primary))' }}>{tip.title}</h3>
-                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(var(--text-primary) / 0.5)' }}>{tip.desc}</p>
+                  <h3
+                    className="font-semibold text-sm mb-1"
+                    style={{ color: 'rgb(var(--text-primary))' }}
+                  >
+                    {tip.title}
+                  </h3>
+                  <p
+                    className="text-xs leading-relaxed"
+                    style={{ color: 'rgba(var(--text-primary) / 0.5)' }}
+                  >
+                    {tip.desc}
+                  </p>
                 </div>
               </div>
             ))}

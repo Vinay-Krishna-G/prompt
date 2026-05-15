@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Disc, Mail, Lock, User, ArrowRight, Check } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EASE_PREMIUM } from '../lib/motion';
+import { registerUser, verifyEmail } from '../services/authService';
 
 const PERKS = [
   'Unlimited prompt copies',
@@ -38,16 +39,35 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useApp();
   const navigate = useNavigate();
+  const [step, setStep] = useState('register');
+  const [otp, setOtp] = useState('');
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    login({ name: form.name, email: form.email, avatar: form.name[0].toUpperCase() });
-    setLoading(false);
-    navigate('/');
+    try {
+      if (step === 'register') {
+        await registerUser({ name: form.name, email: form.email, password: form.password });
+        setStep('verify');
+      } else if (step === 'verify') {
+        const res = await verifyEmail({ email: form.email, otp });
+        login(res.user, res.token);
+        navigate('/');
+      }
+    } catch (err) {
+      const status = err.response?.status;
+      const msg = err.response?.data?.message || 'An error occurred';
+      // 409 = email already registered but may be unverified — jump to verify step
+      if (status === 409 && step === 'register') {
+        setStep('verify');
+      } else {
+        alert(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogle = async () => {
@@ -73,7 +93,8 @@ const RegisterPage = () => {
             The architecture for <span className="text-gray-500">your creative future.</span>
           </h2>
           <p className="text-gray-500 font-light text-base leading-relaxed mb-10">
-            Join a quiet, premium library of prompts tuned for cinematic output across leading models.
+            Join a quiet, premium library of prompts tuned for cinematic output across leading
+            models.
           </p>
           <ul className="space-y-3">
             {PERKS.map((perk, i) => (
@@ -109,11 +130,17 @@ const RegisterPage = () => {
               className="inline-flex items-center gap-2 mb-14 opacity-85 hover:opacity-100 transition-opacity duration-300"
             >
               <Disc size={20} className="text-primary stroke-[1.5]" />
-              <span className="font-display font-medium text-[15px] text-primary tracking-tight">Vault</span>
+              <span className="font-display font-medium text-[15px] text-primary tracking-tight">
+                Vault
+              </span>
             </Link>
 
-            <h1 className="heading-cinematic text-2xl font-semibold mb-2 text-primary tracking-[-0.02em]">Create account</h1>
-            <p className="text-gray-500 text-sm mb-10">Start with the same calm, cinematic workspace as the vault.</p>
+            <h1 className="heading-cinematic text-2xl font-semibold mb-2 text-primary tracking-[-0.02em]">
+              Create account
+            </h1>
+            <p className="text-gray-500 text-sm mb-10">
+              Start with the same calm, cinematic workspace as the vault.
+            </p>
 
             <button
               type="button"
@@ -147,99 +174,156 @@ const RegisterPage = () => {
               <div className="flex-1 h-px bg-primary/[0.06]" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
-                  Full name
-                </label>
-                <div className="relative">
-                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600" />
-                  <input
-                    name="name"
-                    type="text"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="Your name"
-                    required
-                    className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl pl-10 pr-4 py-3 text-[14px] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300"
-                  />
+            {step === 'register' ? (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
+                    Full name
+                  </label>
+                  <div className="relative">
+                    <User
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600"
+                    />
+                    <input
+                      name="name"
+                      type="text"
+                      value={form.name}
+                      onChange={handleChange}
+                      placeholder="Your name"
+                      required
+                      className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl pl-10 pr-4 py-3 text-[14px] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600" />
-                  <input
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    required
-                    className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl pl-10 pr-4 py-3 text-[14px] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300"
-                  />
+                <div>
+                  <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <Mail
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600"
+                    />
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="you@example.com"
+                      required
+                      className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl pl-10 pr-4 py-3 text-[14px] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600" />
-                  <input
-                    name="password"
-                    type={showPass ? 'text' : 'password'}
-                    value={form.password}
-                    onChange={handleChange}
-                    placeholder="Min. 8 characters"
-                    required
-                    minLength={8}
-                    className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl pl-10 pr-11 py-3 text-[14px] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors"
+                <div>
+                  <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600"
+                    />
+                    <input
+                      name="password"
+                      type={showPass ? 'text' : 'password'}
+                      value={form.password}
+                      onChange={handleChange}
+                      placeholder="Min. 8 characters"
+                      required
+                      minLength={8}
+                      className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl pl-10 pr-11 py-3 text-[14px] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(!showPass)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors"
+                    >
+                      {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-gray-600 leading-relaxed">
+                  By signing up you agree to our{' '}
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-gray-300 underline-offset-4 hover:underline transition-colors"
                   >
-                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+                    Terms
+                  </a>{' '}
+                  and{' '}
+                  <a
+                    href="#"
+                    className="text-gray-400 hover:text-gray-300 underline-offset-4 hover:underline transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3.5 bg-primary text-background font-medium text-sm rounded-xl flex items-center justify-center gap-2 shadow-soft-elevation hover:opacity-90 transition-all duration-500 ease-premium disabled:opacity-50 mt-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/30"
+                >
+                  {loading ? (
+                    <Disc className="animate-spin" size={16} aria-label="Loading" />
+                  ) : (
+                    <>
+                      Create account <ArrowRight size={15} className="opacity-45" />
+                    </>
+                  )}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="text-[11px] text-gray-500 uppercase tracking-widest mb-2 block font-medium">
+                    Enter Verification Code
+                  </label>
+                  <p className="text-sm text-gray-400 mb-4">
+                    We sent a 6-digit code to {form.email}
+                  </p>
+                  <div className="relative">
+                    <input
+                      name="otp"
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="123456"
+                      required
+                      maxLength={6}
+                      className="w-full bg-primary/[0.03] border border-primary/[0.08] rounded-xl px-4 py-4 text-center text-2xl tracking-[0.5em] text-primary placeholder-gray-600 outline-none focus:border-primary/20 focus:bg-primary/[0.05] transition-all duration-300 font-mono"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <p className="text-[11px] text-gray-600 leading-relaxed">
-                By signing up you agree to our{' '}
-                <a href="#" className="text-gray-400 hover:text-gray-300 underline-offset-4 hover:underline transition-colors">
-                  Terms
-                </a>{' '}
-                and{' '}
-                <a href="#" className="text-gray-400 hover:text-gray-300 underline-offset-4 hover:underline transition-colors">
-                  Privacy Policy
-                </a>
-                .
-              </p>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 bg-primary text-background font-medium text-sm rounded-xl flex items-center justify-center gap-2 shadow-soft-elevation hover:bg-gray-100 transition-all duration-500 ease-premium disabled:opacity-50 mt-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/30"
-              >
-                {loading ? (
-                  <Disc className="animate-spin" size={16} aria-label="Loading" />
-                ) : (
-                  <>
-                    Create account <ArrowRight size={15} className="opacity-45" />
-                  </>
-                )}
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3.5 bg-primary text-background font-medium text-sm rounded-xl flex items-center justify-center gap-2 shadow-soft-elevation hover:opacity-90 transition-all duration-500 ease-premium disabled:opacity-50 mt-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/30"
+                >
+                  {loading ? (
+                    <Disc className="animate-spin" size={16} aria-label="Loading" />
+                  ) : (
+                    <>
+                      Verify & Login <ArrowRight size={15} className="opacity-45" />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
 
             <p className="text-center text-[13px] text-gray-600 mt-10">
               Already have an account?{' '}
-              <Link to="/login" className="text-gray-400 hover:text-primary transition-colors underline-offset-4 hover:underline">
+              <Link
+                to="/login"
+                className="text-gray-400 hover:text-primary transition-colors underline-offset-4 hover:underline"
+              >
                 Sign in
               </Link>
             </p>

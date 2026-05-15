@@ -26,18 +26,28 @@ const TrendingPage = () => {
           transition={{ duration: 0.68, ease: EASE_PREMIUM }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 border"
-            style={{ 
-              background: 'rgba(249,115,22,0.05)', 
-              borderColor: 'rgba(249,115,22,0.2)' 
-            }}>
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 border"
+            style={{
+              background: 'rgba(249,115,22,0.05)',
+              borderColor: 'rgba(249,115,22,0.2)',
+            }}
+          >
             <Flame size={14} className="text-orange-500" />
-            <span className="text-[12px] font-semibold text-orange-600 tracking-wide uppercase">This Week's Hottest</span>
+            <span className="text-[12px] font-semibold text-orange-600 tracking-wide uppercase">
+              This Week's Hottest
+            </span>
           </div>
-          <h1 className="font-display font-bold tracking-tightest text-5xl sm:text-6xl mb-4" style={{ color: 'rgb(var(--text-primary))' }}>
+          <h1
+            className="font-display font-bold tracking-tightest text-5xl sm:text-6xl mb-4"
+            style={{ color: 'rgb(var(--text-primary))' }}
+          >
             Trending Prompts
           </h1>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: 'rgba(var(--text-primary) / 0.6)' }}>
+          <p
+            className="text-lg max-w-xl mx-auto"
+            style={{ color: 'rgba(var(--text-primary) / 0.6)' }}
+          >
             The most copied and liked AI prompts from the last 7 days
           </p>
         </motion.div>
@@ -52,13 +62,21 @@ const TrendingPage = () => {
           {sorted.slice(0, 3).map((prompt, i) => (
             <div key={prompt.id} className="relative">
               {/* Rank badge */}
-              <div className="absolute -top-3 -left-3 z-10 w-10 h-10 rounded-full flex items-center justify-center text-xl font-black"
+              <div
+                className="absolute -top-3 -left-3 z-10 w-10 h-10 rounded-full flex items-center justify-center text-xl font-black"
                 style={{
-                  background: i === 0 ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' :
-                    i === 1 ? 'linear-gradient(135deg, #e5e7eb, #9ca3af)' :
-                    'linear-gradient(135deg, #d97706, #92400e)',
-                  boxShadow: i === 0 ? '0 10px 28px -8px rgba(251,191,36,0.25)' : '0 8px 24px -10px rgba(0,0,0,0.35)'
-                }}>
+                  background:
+                    i === 0
+                      ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+                      : i === 1
+                        ? 'linear-gradient(135deg, #e5e7eb, #9ca3af)'
+                        : 'linear-gradient(135deg, #d97706, #92400e)',
+                  boxShadow:
+                    i === 0
+                      ? '0 10px 28px -8px rgba(251,191,36,0.25)'
+                      : '0 8px 24px -10px rgba(0,0,0,0.35)',
+                }}
+              >
                 {i + 1}
               </div>
               <PromptCard prompt={prompt} index={i} />
@@ -90,7 +108,12 @@ const TrendingPage = () => {
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp size={18} className="opacity-60" style={{ color: 'rgb(var(--accent))' }} />
-            <h2 className="font-display font-bold text-xl" style={{ color: 'rgb(var(--text-primary))' }}>All Trending Prompts</h2>
+            <h2
+              className="font-display font-bold text-xl"
+              style={{ color: 'rgb(var(--text-primary))' }}
+            >
+              All Trending Prompts
+            </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {sorted.map((prompt, i) => (

@@ -17,7 +17,7 @@ const RewardModal = () => {
 
   useEffect(() => {
     if (step === 'watching' && countdown > 0) {
-      const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => clearTimeout(timer);
     }
     if (step === 'watching' && countdown === 0) {
@@ -45,7 +45,9 @@ const RewardModal = () => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
         style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)' }}
-        onClick={(e) => { if (e.target === e.currentTarget) setShowRewardModal(false); }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setShowRewardModal(false);
+        }}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -56,8 +58,10 @@ const RewardModal = () => {
         >
           {/* Background glow */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 blur-3xl opacity-30"
-              style={{ background: 'radial-gradient(circle, #9333ea, transparent)' }} />
+            <div
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 blur-3xl opacity-30"
+              style={{ background: 'radial-gradient(circle, #9333ea, transparent)' }}
+            />
           </div>
 
           <button
@@ -70,22 +74,28 @@ const RewardModal = () => {
           {/* INTRO STATE */}
           {step === 'intro' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}>
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'linear-gradient(135deg, #9333ea, #06b6d4)' }}
+              >
                 <Zap size={28} className="text-primary" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-primary mb-2">Copy Limit Reached</h2>
-              <p className="text-primary/50 text-sm mb-2">
-                You've used your 3 free prompt copies.
-              </p>
+              <h2 className="font-display font-bold text-2xl text-primary mb-2">
+                Copy Limit Reached
+              </h2>
+              <p className="text-primary/50 text-sm mb-2">You've used your 3 free prompt copies.</p>
               <p className="text-primary/70 text-sm mb-6">
-                Watch a short reward to unlock <span className="text-primary-400 font-semibold">unlimited copies</span> for this session.
+                Watch a short reward to unlock{' '}
+                <span className="text-primary-400 font-semibold">unlimited copies</span> for this
+                session.
               </p>
 
               {pendingCopyPrompt && (
                 <div className="mb-6 p-3 rounded-xl bg-primary/5 border border-primary/10 text-left">
                   <p className="text-xs text-primary/40 mb-1">Copying prompt:</p>
-                  <p className="text-sm text-primary/80 font-medium line-clamp-2">{pendingCopyPrompt.title}</p>
+                  <p className="text-sm text-primary/80 font-medium line-clamp-2">
+                    {pendingCopyPrompt.title}
+                  </p>
                 </div>
               )}
 
@@ -106,7 +116,11 @@ const RewardModal = () => {
               </div>
 
               <p className="mt-4 text-xs text-primary/30">
-                Or <a href="/register" className="text-primary-400 underline">Sign up free</a> for unlimited copies
+                Or{' '}
+                <a href="/register" className="text-primary-400 underline">
+                  Sign up free
+                </a>{' '}
+                for unlimited copies
               </p>
             </motion.div>
           )}
@@ -115,20 +129,29 @@ const RewardModal = () => {
           {step === 'watching' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
               {/* Simulated ad */}
-              <div className="relative rounded-2xl overflow-hidden mb-6" style={{ aspectRatio: '16/9' }}>
+              <div
+                className="relative rounded-2xl overflow-hidden mb-6"
+                style={{ aspectRatio: '16/9' }}
+              >
                 <img
                   src="https://picsum.photos/seed/reward/800/450"
                   alt="Ad"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center"
-                  style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ background: 'rgba(0,0,0,0.3)' }}
+                >
                   <div className="glass rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2">
                     <Clock size={14} className="text-primary-400" />
-                    <span>Ad ends in <span className="text-primary-400 font-bold">{countdown}s</span></span>
+                    <span>
+                      Ad ends in <span className="text-primary-400 font-bold">{countdown}s</span>
+                    </span>
                   </div>
                 </div>
-                <div className="absolute top-3 left-3 badge badge-purple text-xs">ADVERTISEMENT</div>
+                <div className="absolute top-3 left-3 badge badge-purple text-xs">
+                  ADVERTISEMENT
+                </div>
               </div>
 
               {/* Progress bar */}
@@ -142,9 +165,7 @@ const RewardModal = () => {
                 />
               </div>
 
-              <p className="text-primary/50 text-sm">
-                Please wait while we load your reward...
-              </p>
+              <p className="text-primary/50 text-sm">Please wait while we load your reward...</p>
             </motion.div>
           )}
 
@@ -165,7 +186,9 @@ const RewardModal = () => {
                 <CheckCheck size={36} className="text-primary" />
               </motion.div>
 
-              <h2 className="font-display font-bold text-2xl text-primary mb-2">Reward Unlocked!</h2>
+              <h2 className="font-display font-bold text-2xl text-primary mb-2">
+                Reward Unlocked!
+              </h2>
               <p className="text-primary/60 text-sm mb-6">
                 Your prompt is ready to copy. Unlimited copies are now unlocked for this session.
               </p>
@@ -173,7 +196,10 @@ const RewardModal = () => {
               <button
                 onClick={handleUnlock}
                 className="btn-primary w-full justify-center text-base py-3.5"
-                style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 4px 15px rgba(34,197,94,0.4)' }}
+                style={{
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  boxShadow: '0 4px 15px rgba(34,197,94,0.4)',
+                }}
               >
                 <CheckCheck size={18} />
                 Copy Prompt Now

@@ -19,7 +19,7 @@ export const createPrompt = asyncHandler(async (req, res, next) => {
 // @route   GET /api/prompts
 // @access  Public
 export const getPrompts = asyncHandler(async (req, res, next) => {
-  const { page = 1, limit = 10, search, category, trending } = req.query;
+  const { page = 1, limit = 10, search, category, trending, type, sort } = req.query;
 
   const pageNum = parseInt(page, 10) || 1;
   const limitNum = parseInt(limit, 10) || 10;
@@ -37,14 +37,27 @@ export const getPrompts = asyncHandler(async (req, res, next) => {
     query.category = category;
   }
 
+  // Filter by type
+  if (type && ['image', 'video'].includes(type)) {
+    query.type = type;
+  }
+
   // Filter by trending
   if (trending === 'true') {
     query.isTrending = true;
   }
 
+  // Determine sort order
+  let sortOrder = search ? { score: { $meta: 'textScore' } } : { createdAt: -1 };
+  if (sort) {
+    const sortField = sort.startsWith('-') ? sort.slice(1) : sort;
+    const sortDir = sort.startsWith('-') ? -1 : 1;
+    sortOrder = { [sortField]: sortDir };
+  }
+
   const prompts = await Prompt.find(query)
     .populate('creator', 'name avatar')
-    .sort(search ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
+    .sort(sortOrder)
     .skip(skip)
     .limit(limitNum);
 
@@ -108,4 +121,90 @@ export const deletePrompt = asyncHandler(async (req, res, next) => {
   await prompt.deleteOne();
 
   return sendSuccess(res, { message: 'Prompt removed' });
+});
+
+// @desc    Toggle like on prompt
+// @route   POST /api/prompts/:id/like
+// @access  Private
+export const toggleLike = asyncHandler(async (req, res, next) => {
+  const prompt = await Prompt.findById(req.params.id);
+  const user = req.user;
+
+  if (!prompt) {
+    return next(new AppError('Prompt not found', 404));
+  }
+
+  const promptIdStr = prompt._id.toString();
+  const index = user.likedPrompts.indexOf(promptIdStr);
+
+  if (index !== -1) {
+    // Un-like
+    user.likedPrompts.splice(index, 1);
+    prompt.likes = Math.max(0, prompt.likes - 1);
+  } else {
+    // Like
+    user.likedPrompts.push(promptIdStr);
+    prompt.likes += 1;
+  }
+
+  await user.save({ validateBeforeSave: false });
+  await prompt.save({ validateBeforeSave: false });
+
+  return sendSuccess(res, { 
+    liked: index === -1,
+    likesCount: prompt.likes,
+    likedPrompts: user.likedPrompts 
+  });
+});
+
+// @desc    Toggle save on prompt
+// @route   POST /api/prompts/:id/save
+// @access  Private
+export const toggleSave = asyncHandler(async (req, res, next) => {
+  const prompt = await Prompt.findById(req.params.id);
+  const user = req.user;
+
+  if (!prompt) {
+    return next(new AppError('Prompt not found', 404));
+  }
+
+  const promptIdStr = prompt._id.toString();
+  const index = user.savedPrompts.indexOf(promptIdStr);
+
+  if (index !== -1) {
+    // Un-save
+    user.savedPrompts.splice(index, 1);
+  } else {
+    // Save
+    user.savedPrompts.push(promptIdStr);
+  }
+
+  await user.save({ validateBeforeSave: false });
+
+  return sendSuccess(res, { 
+    saved: index === -1,
+    savedPrompts: user.savedPrompts 
+  });
+});
+
+// @desc    Get saved prompts for user
+// @route   GET /api/prompts/user/saved
+// @access  Private
+export const getSavedPrompts = asyncHandler(async (req, res, next) => {
+  const prompts = await Prompt.find({ _id: { $in: req.user.savedPrompts } })
+    .populate('creator', 'name avatar')
+    .sort({ createdAt: -1 });
+  
+  return sendSuccess(res, { prompts });
+});
+
+// @desc    Get liked prompts for user
+// @route   GET /api/prompts/user/liked
+// @access  Private
+export const getLikedPrompts = asyncHandler(async (req, res, next) => {
+  const prompts = await Prompt.find({ _id: { $in: req.user.likedPrompts } })
+    .populate('creator', 'name avatar')
+    .sort({ createdAt: -1 });
+  
+  return sendSuccess(res, { prompts });
 });

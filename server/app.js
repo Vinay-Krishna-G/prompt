@@ -22,6 +22,7 @@ import promptRouter from './routes/promptRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js';
 import categoryRouter from './routes/categoryRoutes.js';
+import aimodelRouter from './routes/aimodelRoutes.js';
 
 const app = express();
 
@@ -116,6 +117,7 @@ app.use('/api/prompts', promptRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/categories', categoryRouter);
+app.use('/api/aimodels', aimodelRouter);
 
 // 3) CATCH-ALL ERROR HANDLING
 app.use(notFound);

@@ -18,7 +18,7 @@ const ImageWithPlaceholder = ({
       setLoaded(true);
       onLoad?.(e);
     },
-    [onLoad]
+    [onLoad],
   );
 
   return (

@@ -10,15 +10,15 @@ import { useApp } from '../context/AppContext';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-  }
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
 };
 
 const AmbientBg = () => (
@@ -48,7 +48,7 @@ const HomePage = () => {
     default: 4,
     1100: 3,
     700: 2,
-    500: 1
+    500: 1,
   };
 
   useEffect(() => {
@@ -57,7 +57,7 @@ const HomePage = () => {
         setIsLoading(true);
         const [promptsData, trendingData] = await Promise.all([
           getPrompts({ limit: 20 }),
-          getPrompts({ trending: true, limit: 4 })
+          getPrompts({ trending: true, limit: 4 }),
         ]);
         setPrompts(promptsData.prompts);
         setTrendingPrompts(trendingData.prompts);
@@ -79,7 +79,10 @@ const HomePage = () => {
         <div>
           <Disc size={32} className="mx-auto text-red-500/50 mb-4" />
           <h2 className="text-xl font-medium mb-2">{error}</h2>
-          <button onClick={() => window.location.reload()} className="text-sm text-gray-500 hover:text-primary transition-colors">
+          <button
+            onClick={() => window.location.reload()}
+            className="text-sm text-gray-500 hover:text-primary transition-colors"
+          >
             Retry Connection
           </button>
         </div>
@@ -119,22 +122,23 @@ const HomePage = () => {
             variants={fadeInUp}
             className="text-body-soft text-[16px] sm:text-lg max-w-[560px] mb-10 opacity-80"
           >
-            Discover premium prompt templates for visual engineers. 
-            Curated outputs from Midjourney, Sora, & Runway.
+            Discover premium prompt templates for visual engineers. Curated outputs from Midjourney,
+            Sora, & Runway.
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-3">
             <Link to="/categories" className="btn-premium group">
-              Browse Vault <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              Browse Vault{' '}
+              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            
+
             {/* Fake refined search button */}
             <button
               type="button"
               onClick={() => setCommandPaletteOpen(true)}
               className="btn-premium-outline group"
             >
-              <Search size={14} className="opacity-60" /> 
+              <Search size={14} className="opacity-60" />
               Quick Search
               <kbd className="hidden sm:inline-flex items-center ml-2 gap-0.5 text-[10px] font-sans border border-primary/10 bg-primary/5 rounded px-1.5 opacity-40">
                 <Command size={9} /> K
@@ -150,16 +154,29 @@ const HomePage = () => {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="flex justify-between items-end mb-10 pb-5" style={{ borderBottom: '1px solid rgba(var(--border-color) / 0.05)' }}>
+            <div
+              className="flex justify-between items-end mb-10 pb-5"
+              style={{ borderBottom: '1px solid rgba(var(--border-color) / 0.05)' }}
+            >
               <div>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-1">Latest Curation</h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-1">
+                  Latest Curation
+                </h2>
                 <p className="text-xl font-semibold heading-cinematic">Trending Prompts</p>
               </div>
-              <Link to="/trending" className="text-sm flex items-center gap-1.5 group" style={{ color: 'rgba(var(--text-primary) / 0.6)' }}>
-                View Library <ArrowRight size={13} className="opacity-40 group-hover:opacity-100 transition-all" />
+              <Link
+                to="/trending"
+                className="text-sm flex items-center gap-1.5 group"
+                style={{ color: 'rgba(var(--text-primary) / 0.6)' }}
+              >
+                View Library{' '}
+                <ArrowRight
+                  size={13}
+                  className="opacity-40 group-hover:opacity-100 transition-all"
+                />
               </Link>
             </div>
 
@@ -169,7 +186,9 @@ const HomePage = () => {
                   <PromptCard key={prompt._id || prompt.id} prompt={prompt} index={idx} />
                 ))
               ) : (
-                <div className="col-span-full py-10 text-center text-gray-500 text-sm">No trending prompts available.</div>
+                <div className="col-span-full py-10 text-center text-gray-500 text-sm">
+                  No trending prompts available.
+                </div>
               )}
             </div>
           </motion.div>
@@ -186,8 +205,13 @@ const HomePage = () => {
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center justify-center gap-12 flex-wrap opacity-40 grayscale hover:grayscale-0 transition-all duration-700"
           >
-            {['Midjourney', 'Veo 2', 'Runway Gen-3', 'Kling AI', 'DALL-E 3'].map(p => (
-              <span key={p} className="text-[13px] font-mono uppercase tracking-[0.2em] font-medium whitespace-nowrap">{p}</span>
+            {['Midjourney', 'Veo 2', 'Runway Gen-3', 'Kling AI', 'DALL-E 3'].map((p) => (
+              <span
+                key={p}
+                className="text-[13px] font-mono uppercase tracking-[0.2em] font-medium whitespace-nowrap"
+              >
+                {p}
+              </span>
             ))}
           </motion.div>
         </div>
@@ -199,13 +223,18 @@ const HomePage = () => {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="mb-14"
           >
             <div className="flex items-baseline gap-4">
-              <h3 className="text-2xl font-semibold tracking-tight heading-cinematic">Explore Assets</h3>
-              <div className="h-[1px] flex-1" style={{ backgroundColor: 'rgba(var(--border-color) / 0.05)' }} />
+              <h3 className="text-2xl font-semibold tracking-tight heading-cinematic">
+                Explore Assets
+              </h3>
+              <div
+                className="h-[1px] flex-1"
+                style={{ backgroundColor: 'rgba(var(--border-color) / 0.05)' }}
+              />
             </div>
           </motion.div>
 
@@ -222,7 +251,9 @@ const HomePage = () => {
               ))}
             </Masonry>
           ) : (
-            <div className="py-20 text-center text-gray-500 text-sm">No prompts found in the vault.</div>
+            <div className="py-20 text-center text-gray-500 text-sm">
+              No prompts found in the vault.
+            </div>
           )}
         </div>
       </section>
@@ -239,8 +270,12 @@ const HomePage = () => {
             className="max-w-xl mx-auto"
           >
             <Disc size={32} className="mx-auto text-gray-600 mb-6 stroke-[1]" />
-            <h2 className="heading-cinematic text-3xl sm:text-4xl mb-4 leading-tight">Begin creating today.</h2>
-            <p className="text-gray-500 mb-8 text-base font-light">Join designers pushing the envelope of visual media.</p>
+            <h2 className="heading-cinematic text-3xl sm:text-4xl mb-4 leading-tight">
+              Begin creating today.
+            </h2>
+            <p className="text-gray-500 mb-8 text-base font-light">
+              Join designers pushing the envelope of visual media.
+            </p>
             <Link to="/register" className="btn-premium py-3 px-8 shadow-2xl">
               Create Free Account
             </Link>
