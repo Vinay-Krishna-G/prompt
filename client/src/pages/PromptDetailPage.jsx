@@ -128,13 +128,16 @@ const PromptDetailPage = () => {
 
   return (
     <div className="min-h-screen pt-20 pb-28 md:pt-24 md:pb-32 bg-background relative overflow-hidden">
-      <div className="absolute top-0 inset-x-0 h-[min(70vh,720px)] pointer-events-none z-0 overflow-hidden opacity-25">
+      {/* Background Atmosphere - Refined for smoother transition */}
+      <div className="absolute top-0 inset-x-0 h-[min(85vh,920px)] pointer-events-none z-0 overflow-hidden opacity-30">
         <img
           src={prompt.previewImage}
           alt=""
-          className="w-full h-full object-cover blur-[100px] scale-110"
+          className="w-full h-full object-cover blur-[110px] scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/80 to-background" />
+        {/* Layered gradients for deep cinematic blend */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
       </div>
 
       <div className="section-contain relative z-10">
@@ -156,10 +159,10 @@ const PromptDetailPage = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.72, ease: EASE_PREMIUM }}
-              className="relative rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated group"
+              className="relative rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated group flex items-center justify-center min-h-[400px]"
             >
               {prompt.type === 'video' ? (
-                <div className="relative aspect-video">
+                <div className="relative w-full h-full flex items-center justify-center">
                   {prompt.previewVideo ? (
                     <video
                       src={prompt.previewVideo}
@@ -168,7 +171,7 @@ const PromptDetailPage = () => {
                       muted
                       playsInline
                       onLoadedData={() => setHeroLoaded(true)}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
                     />
                   ) : (
                     <ImageWithPlaceholder
@@ -176,24 +179,24 @@ const PromptDetailPage = () => {
                       alt={prompt.title}
                       dominantColor={dominantColor}
                       onLoad={() => setHeroLoaded(true)}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
                     />
                   )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-background/25 group-hover:bg-background/12 transition-colors duration-500 ease-premium pointer-events-none">
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/20 group-hover:bg-background/8 transition-colors duration-500 ease-premium pointer-events-none">
                     <div className="w-20 h-20 rounded-full bg-background/35 backdrop-blur-md border border-primary/15 flex items-center justify-center text-primary transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
                       <Play size={32} className="ml-2 fill-current" />
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="relative">
+                <div className="relative w-full flex items-center justify-center bg-[#050505]/40">
                   <ImageWithPlaceholder
                     src={prompt.previewImage}
                     alt={prompt.title}
                     dominantColor={dominantColor}
                     onLoad={() => setHeroLoaded(true)}
-                    className={`w-full h-auto object-cover max-h-[min(78vh,920px)] transition-transform duration-[800ms] ease-premium ${
-                      heroLoaded ? 'group-hover:scale-[1.01]' : ''
+                    className={`w-full h-auto object-contain max-h-[min(82vh,1000px)] transition-transform duration-[800ms] ease-premium ${
+                      heroLoaded ? 'group-hover:scale-[1.005]' : ''
                     }`}
                   />
                 </div>
