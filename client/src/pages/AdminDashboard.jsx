@@ -28,6 +28,7 @@ import { getPrompts, deletePrompt, createPrompt, uploadAsset, getDashboardStats 
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService';
 import { getAIModels, createAIModel, deleteAIModel } from '../services/aiModelService';
 import { getAllUsers, updateUserRole } from '../services/userService';
+import { optimizeImage } from '../utils/imageOptimization';
 
 const SIDEBAR_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -156,6 +157,7 @@ const AdminDashboard = () => {
   const [newAIModelName, setNewAIModelName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -379,7 +381,16 @@ const AdminDashboard = () => {
       let isVideo = false;
 
       if (mediaFile) {
-        const assetRes = await uploadAsset(mediaFile);
+        let fileToUpload = mediaFile;
+        const isImage = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(mediaFile.type);
+        
+        if (isImage) {
+          setLoadingStatus('Compressing...');
+          fileToUpload = await optimizeImage(mediaFile);
+        }
+        
+        setLoadingStatus('Uploading to Cloudinary...');
+        const assetRes = await uploadAsset(fileToUpload);
         assetUrl = assetRes.url;
         isVideo = assetRes.resourceType === 'video';
       }
@@ -438,6 +449,7 @@ const AdminDashboard = () => {
       alert(err.response?.data?.message || 'Failed to publish');
     } finally {
       setIsUploading(false);
+      setLoadingStatus('');
     }
   };
 
@@ -1099,7 +1111,7 @@ const AdminDashboard = () => {
                       disabled={isUploading}
                       className="btn-primary w-full justify-center py-4 rounded-2xl shadow-xl shadow-primary/10"
                     >
-                      {isUploading ? 'Publishing...' : <><Upload size={18} /> Publish Visual</>}
+                      {isUploading ? (loadingStatus || 'Publishing...') : <><Upload size={18} /> Publish Visual</>}
                     </button>
                   </div>
                 </div>
@@ -1192,7 +1204,7 @@ const AdminDashboard = () => {
                         disabled={isUploading}
                         className="btn-primary w-full justify-center py-4 rounded-2xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20"
                       >
-                        {isUploading ? 'Publishing...' : <><Zap size={18} /> Publish Workflow</>}
+                        {isUploading ? (loadingStatus || 'Publishing...') : <><Zap size={18} /> Publish Workflow</>}
                       </button>
                     </div>
                   </div>

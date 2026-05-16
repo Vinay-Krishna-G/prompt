@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Save, Loader as LoaderIcon, AlertCircle } from 'lucide-react';
-import { getPromptById, updatePrompt } from '../services/promptService';
+import { getPromptById, updatePrompt, uploadAsset } from '../services/promptService';
 import { getCategories } from '../services/categoryService';
 import { getAIModels } from '../services/aiModelService';
+import { optimizeImage } from '../utils/imageOptimization';
+import { Upload } from 'lucide-react';
 
 // Skeleton for loading state
 const FieldSkeleton = () => (
@@ -21,6 +23,8 @@ const EditPromptPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [loadError, setLoadError] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
 
   // Load categories + models in parallel
   useEffect(() => {
@@ -74,6 +78,36 @@ const EditPromptPage = () => {
   const set = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }));
   const setConfig = (key, value) =>
     setFormData((prev) => ({ ...prev, config: { ...prev.config, [key]: value } }));
+
+  const handleImageReplace = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      let fileToUpload = file;
+      const isImage = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type);
+
+      if (isImage) {
+        setLoadingStatus('Compressing...');
+        fileToUpload = await optimizeImage(file);
+      }
+
+      setLoadingStatus('Uploading...');
+      const assetRes = await uploadAsset(fileToUpload);
+      set('previewImage', assetRes.url);
+      if (assetRes.resourceType === 'video') {
+        set('previewVideo', assetRes.url);
+        set('type', 'video');
+      }
+    } catch (err) {
+      console.error('Replacement failed', err);
+      alert('Failed to upload replacement asset');
+    } finally {
+      setIsUploading(false);
+      setLoadingStatus('');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -307,12 +341,30 @@ const EditPromptPage = () => {
                 <label className="text-xs text-muted uppercase tracking-widest mb-2 block">
                   Preview Image URL <span className="normal-case opacity-50">(Cloudinary)</span>
                 </label>
-                <input
-                  value={formData.previewImage}
-                  onChange={(e) => set('previewImage', e.target.value)}
-                  className="input-minimal text-sm"
-                  placeholder="https://res.cloudinary.com/..."
-                />
+                <div className="flex gap-2">
+                  <input
+                    value={formData.previewImage}
+                    onChange={(e) => set('previewImage', e.target.value)}
+                    className="input-minimal text-sm flex-1"
+                    placeholder="https://res.cloudinary.com/..."
+                  />
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*,video/*"
+                      onChange={handleImageReplace}
+                      disabled={isUploading}
+                    />
+                    <div className="h-full px-4 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 flex items-center justify-center transition-colors">
+                      {isUploading ? (
+                        <span className="text-[10px] font-bold uppercase tracking-wider animate-pulse">{loadingStatus || '...'}</span>
+                      ) : (
+                        <Upload size={14} className="text-primary/60" />
+                      )}
+                    </div>
+                  </label>
+                </div>
               </div>
               {formData.type === 'video' && (
                 <div>
