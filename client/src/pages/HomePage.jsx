@@ -56,8 +56,8 @@ const HomePage = () => {
       try {
         setIsLoading(true);
         const [promptsData, trendingData] = await Promise.all([
-          getPrompts({ limit: 20 }),
-          getPrompts({ trending: true, limit: 4 }),
+          getPrompts({ promptType: 'visual', limit: 30 }),
+          getPrompts({ promptType: 'visual', trending: true, limit: 4 }),
         ]);
         setPrompts(promptsData.prompts);
         setTrendingPrompts(trendingData.prompts);

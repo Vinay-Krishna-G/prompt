@@ -56,6 +56,10 @@ const promptSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
     views: {
       type: Number,
       default: 0,
@@ -86,6 +90,20 @@ const promptSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: '',
+    },
+    promptType: {
+      type: String,
+      enum: ['visual', 'workflow'],
+      default: 'visual',
+    },
+    workflowCategory: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    workflowTools: {
+      type: [String],
+      default: [],
     },
   },
   {

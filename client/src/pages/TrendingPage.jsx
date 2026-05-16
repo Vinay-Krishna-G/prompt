@@ -26,7 +26,7 @@ const TrendingPage = () => {
     const fetchTrending = async () => {
       try {
         setIsLoading(true);
-        const data = await getPrompts({ trending: true, limit: 30 });
+        const data = await getPrompts({ trending: true, promptType: 'visual', limit: 30 });
         // Ensure we have prompts and sort them by likes/copies if needed
         const trendingList = data.prompts || [];
         setPrompts(trendingList);

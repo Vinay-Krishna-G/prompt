@@ -16,6 +16,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import EditPromptPage from './pages/EditPromptPage';
 import SavedPromptsPage from './pages/SavedPromptsPage';
 import TrendingPage from './pages/TrendingPage';
+import WorkflowsPage from './pages/WorkflowsPage';
 import AdminRoute from './components/AdminRoute';
 
 // Page transition wrapper
@@ -160,6 +161,22 @@ const AppRoutes = () => {
               element={
                 <PageTransition>
                   <TrendingPage />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/workflows"
+              element={
+                <PageTransition>
+                  <WorkflowsPage />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/workflows/:category"
+              element={
+                <PageTransition>
+                  <WorkflowsPage />
                 </PageTransition>
               }
             />

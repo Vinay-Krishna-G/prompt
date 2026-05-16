@@ -47,6 +47,24 @@ export const getPrompts = asyncHandler(async (req, res, next) => {
     query.isTrending = true;
   }
 
+  // Filter by promptType (visual/workflow)
+  if (req.query.promptType) {
+    if (req.query.promptType === 'visual') {
+      query.$or = [
+        { promptType: 'visual' },
+        { promptType: { $exists: false } },
+        { promptType: null }
+      ];
+    } else {
+      query.promptType = req.query.promptType;
+    }
+  }
+
+  // Filter by workflowCategory
+  if (req.query.workflowCategory) {
+    query.workflowCategory = req.query.workflowCategory;
+  }
+
   // Determine sort order
   let sortOrder = search ? { score: { $meta: 'textScore' } } : { createdAt: -1 };
   if (sort) {
@@ -119,6 +137,8 @@ export const getDashboardStats = asyncHandler(async (req, res, next) => {
     totalUsers,
     totalCategories,
     totalAIModels,
+    totalVisuals,
+    totalWorkflows,
     likesAgg,
     copiesAgg,
     viewsAgg,
@@ -129,6 +149,10 @@ export const getDashboardStats = asyncHandler(async (req, res, next) => {
     User.countDocuments(),
     Category.countDocuments(),
     AIModel.countDocuments(),
+    Prompt.countDocuments({
+      $or: [{ promptType: 'visual' }, { promptType: { $exists: false } }, { promptType: null }],
+    }),
+    Prompt.countDocuments({ promptType: 'workflow' }),
     Prompt.aggregate([{ $group: { _id: null, total: { $sum: '$likes' } } }]),
     Prompt.aggregate([{ $group: { _id: null, total: { $sum: '$copies' } } }]),
     Prompt.aggregate([{ $group: { _id: null, total: { $sum: '$views' } } }]),
@@ -141,13 +165,13 @@ export const getDashboardStats = asyncHandler(async (req, res, next) => {
     totalUsers,
     totalCategories,
     totalAIModels,
+    totalVisuals,
+    totalWorkflows,
     totalLikes: likesAgg[0]?.total ?? 0,
     totalCopies: copiesAgg[0]?.total ?? 0,
     totalViews: viewsAgg[0]?.total ?? 0,
     todayPrompts,
     todayUsers,
-    // Note: copies/likes today would require a separate analytics collection
-    // For now we'll return the growth in content
   });
 });
 
@@ -161,7 +185,13 @@ export const updatePrompt = asyncHandler(async (req, res, next) => {
     return next(new AppError('Prompt not found', 404));
   }
 
-  prompt = await Prompt.findByIdAndUpdate(req.params.id, req.body, {
+  // If promptType is missing in the update and not in the original, default to visual
+  const updateData = { ...req.body };
+  if (!updateData.promptType && !prompt.promptType) {
+    updateData.promptType = 'visual';
+  }
+
+  prompt = await Prompt.findByIdAndUpdate(req.params.id, updateData, {
     new: true,
     runValidators: true,
   }).populate('creator', 'name avatar');
@@ -202,10 +232,12 @@ export const toggleLike = asyncHandler(async (req, res, next) => {
     // Un-like
     user.likedPrompts.splice(index, 1);
     prompt.likes = Math.max(0, prompt.likes - 1);
+    prompt.likesCount = prompt.likes;
   } else {
     // Like
     user.likedPrompts.push(promptIdStr);
     prompt.likes += 1;
+    prompt.likesCount = prompt.likes;
   }
 
   await user.save({ validateBeforeSave: false });
@@ -268,4 +300,20 @@ export const getLikedPrompts = asyncHandler(async (req, res, next) => {
     .sort({ createdAt: -1 });
   
   return sendSuccess(res, { prompts });
+});
+
+// @desc    Track copy/remix of prompt
+// @route   POST /api/prompts/:id/copy
+// @access  Public
+export const trackCopy = asyncHandler(async (req, res, next) => {
+  const prompt = await Prompt.findById(req.params.id);
+
+  if (!prompt) {
+    return next(new AppError('Prompt not found', 404));
+  }
+
+  prompt.copies += 1;
+  await prompt.save({ validateBeforeSave: false });
+
+  return sendSuccess(res, { copies: prompt.copies });
 });

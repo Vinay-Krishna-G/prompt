@@ -56,7 +56,7 @@ const CategoriesPage = () => {
 
     setIsLoading(true);
     try {
-      const params = { limit: 100 };
+      const params = { limit: 100, promptType: 'visual' };
       if (selectedCatName) params.category = selectedCatName;
       if (sortBy === 'popular') params.sort = '-copies';
       if (sortBy === 'newest') params.sort = '-createdAt';

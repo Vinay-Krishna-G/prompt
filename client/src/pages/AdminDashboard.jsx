@@ -20,6 +20,8 @@ import {
   X,
   Trash2,
   Edit2,
+  Heart,
+  Palette,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getPrompts, deletePrompt, createPrompt, uploadAsset, getDashboardStats } from '../services/promptService';
@@ -29,8 +31,13 @@ import { getAllUsers, updateUserRole } from '../services/userService';
 
 const SIDEBAR_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'upload', label: 'Upload Prompt', icon: Upload },
-  { id: 'prompts', label: 'Manage Prompts', icon: List },
+  { type: 'label', label: 'VISUALS' },
+  { id: 'upload_visual', label: 'Upload Visual', icon: Upload },
+  { id: 'manage_visuals', label: 'Manage Visuals', icon: List },
+  { type: 'label', label: 'WORKFLOWS' },
+  { id: 'upload_workflow', label: 'Upload Workflow', icon: Upload },
+  { id: 'manage_workflows', label: 'Manage Workflows', icon: List },
+  { type: 'label', label: 'SYSTEM' },
   { id: 'categories', label: 'Categories', icon: Tag },
   { id: 'aimodels', label: 'AI Models', icon: Zap },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -56,7 +63,16 @@ const Sidebar = ({ active, setActive, setSidebarOpen }) => (
     </div>
 
     <nav className="flex-1 px-3 space-y-1">
-      {SIDEBAR_ITEMS.map((item) => {
+      {SIDEBAR_ITEMS.map((item, idx) => {
+        if (item.type === 'label') {
+          return (
+            <div key={`label-${idx}`} className="px-4 pt-6 pb-2">
+              <span className="text-[10px] font-bold tracking-[0.2em] text-primary/20 uppercase">
+                {item.label}
+              </span>
+            </div>
+          );
+        }
         const Icon = item.icon;
         return (
           <button
@@ -127,7 +143,8 @@ const AdminDashboard = () => {
   const [active, setActive] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const [recentPrompts, setRecentPrompts] = useState([]);
+  const [recentVisuals, setRecentVisuals] = useState([]);
+  const [recentWorkflows, setRecentWorkflows] = useState([]);
   const [categories, setCategories] = useState([]);
   const [aiModels, setAiModels] = useState([]);
   const [users, setUsers] = useState([]);
@@ -148,6 +165,9 @@ const AdminDashboard = () => {
     type: 'image',
     tags: '',
     customizationNotes: '',
+    promptType: 'visual',
+    workflowCategory: '',
+    workflowTools: '',
     aiModel: 'Midjourney v6.1',
     config: {
       aspectRatio: '',
@@ -162,10 +182,10 @@ const AdminDashboard = () => {
   const [promptsPage, setPromptsPage] = useState(1);
   const [promptsTotalPages, setPromptsTotalPages] = useState(1);
 
-  const fetchPromptsList = async (page = 1) => {
+  const fetchPromptsList = async (page = 1, type = 'visual') => {
     try {
       setIsLoading(true);
-      const res = await getPrompts({ limit: 20, page });
+      const res = await getPrompts({ limit: 20, page, promptType: type });
       setAllPrompts(res.prompts);
       setPromptsPage(res.pagination.page);
       setPromptsTotalPages(res.pagination.pages);
@@ -215,11 +235,13 @@ const AdminDashboard = () => {
   const fetchRecent = async () => {
     try {
       setIsLoading(true);
-      const [res, stats] = await Promise.all([
-        getPrompts({ limit: 6, sort: '-createdAt' }),
+      const [visualsRes, workflowsRes, stats] = await Promise.all([
+        getPrompts({ limit: 6, promptType: 'visual', sort: '-createdAt' }),
+        getPrompts({ limit: 6, promptType: 'workflow', sort: '-createdAt' }),
         getDashboardStats().catch(() => null),
       ]);
-      setRecentPrompts(res.prompts);
+      setRecentVisuals(visualsRes.prompts);
+      setRecentWorkflows(workflowsRes.prompts);
       if (stats) setDashStats(stats);
     } catch (err) {
       console.error(err);
@@ -236,21 +258,28 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (active === 'dashboard') {
       fetchRecent();
-    } else if (active === 'prompts') {
-      fetchPromptsList();
+    } else if (active === 'manage_visuals') {
+      fetchPromptsList(1, 'visual');
+    } else if (active === 'manage_workflows') {
+      fetchPromptsList(1, 'workflow');
+    } else if (active === 'upload_visual') {
+      setFormData(prev => ({ ...prev, promptType: 'visual' }));
+    } else if (active === 'upload_workflow') {
+      setFormData(prev => ({ ...prev, promptType: 'workflow' }));
     } else if (active === 'users') {
       fetchUsersList();
     }
   }, [active]);
 
   const handleDelete = async (id, isAllList = false) => {
-    if (!window.confirm('Delete this prompt?')) return;
+    if (!window.confirm('Delete this item?')) return;
     try {
       await deletePrompt(id);
       if (isAllList) {
         setAllPrompts((prev) => prev.filter((p) => p._id !== id && p.id !== id));
       } else {
-        setRecentPrompts((prev) => prev.filter((p) => p._id !== id && p.id !== id));
+        setRecentVisuals((prev) => prev.filter((p) => p._id !== id && p.id !== id));
+        setRecentWorkflows((prev) => prev.filter((p) => p._id !== id && p.id !== id));
       }
     } catch (err) {
       alert('Failed to delete');
@@ -341,38 +370,48 @@ const AdminDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!mediaFile) return alert('Please upload a preview image/video');
+    const isVisual = formData.promptType === 'visual';
+    if (isVisual && !mediaFile) return alert('Please upload a preview image/video');
 
     try {
       setIsUploading(true);
+      let assetUrl = '';
+      let isVideo = false;
 
-      const assetRes = await uploadAsset(mediaFile);
-      const isVideo = assetRes.resourceType === 'video';
+      if (mediaFile) {
+        const assetRes = await uploadAsset(mediaFile);
+        assetUrl = assetRes.url;
+        isVideo = assetRes.resourceType === 'video';
+      }
 
       const newPrompt = {
         title: formData.title,
         promptText: formData.promptText,
         description: formData.description || undefined,
-        category: formData.category,
-        type: formData.type,
+        category: isVisual ? formData.category : undefined,
+        type: isVisual ? formData.type : 'image',
         tags: formData.tags
           .split(',')
           .map((t) => t.trim())
           .filter(Boolean),
         customizationNotes: formData.customizationNotes || undefined,
-        aiModel: formData.aiModel,
-        previewImage: isVideo ? assetRes.url.replace(/\.[^/.]+$/, '.jpg') : assetRes.url,
-        previewVideo: isVideo ? assetRes.url : undefined,
-        config: {
+        promptType: formData.promptType,
+        workflowCategory: !isVisual ? formData.workflowCategory : undefined,
+        workflowTools: !isVisual ? formData.workflowTools.split(',').map(t => t.trim()).filter(Boolean) : undefined,
+        aiModel: isVisual ? formData.aiModel : undefined,
+        previewImage: assetUrl ? (isVideo ? assetUrl.replace(/\.[^/.]+$/, '.jpg') : assetUrl) : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop',
+        previewVideo: isVideo ? assetUrl : undefined,
+        config: isVisual ? {
           aspectRatio: formData.config.aspectRatio || undefined,
           chaos: formData.config.chaos || undefined,
           quality: formData.config.quality || undefined,
           style: formData.config.style || undefined,
-        },
+        } : undefined,
       };
 
       await createPrompt(newPrompt);
-      alert('Prompt published successfully!');
+      alert(`${isVisual ? 'Visual' : 'Workflow'} published successfully!`);
+      // Reset form...
       setFormData({
         title: '',
         promptText: '',
@@ -381,6 +420,9 @@ const AdminDashboard = () => {
         type: 'image',
         tags: '',
         customizationNotes: '',
+        promptType: 'visual',
+        workflowCategory: '',
+        workflowTools: '',
         aiModel: aiModels[0]?.name || 'Midjourney v6.1',
         config: {
           aspectRatio: '',
@@ -393,7 +435,7 @@ const AdminDashboard = () => {
       setActive('dashboard');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to publish prompt');
+      alert(err.response?.data?.message || 'Failed to publish');
     } finally {
       setIsUploading(false);
     }
@@ -404,32 +446,32 @@ const AdminDashboard = () => {
 
   const stats = [
     {
-      label: 'Total Prompts',
-      value: dashStats ? dashStats.totalPrompts.toLocaleString() : '—',
+      label: 'Visual Prompts',
+      value: dashStats ? (dashStats.totalVisuals || 0).toLocaleString() : '—',
+      change: 0,
+      icon: <Palette size={18} className="text-primary" />,
+      color: 'bg-indigo-500/20',
+    },
+    {
+      label: 'Workflow Systems',
+      value: dashStats ? (dashStats.totalWorkflows || 0).toLocaleString() : '—',
       change: 0,
       icon: <Zap size={18} className="text-primary" />,
-      color: 'bg-primary-500/20',
-    },
-    {
-      label: 'Total Users',
-      value: dashStats ? dashStats.totalUsers.toLocaleString() : '—',
-      change: 0,
-      icon: <Users size={18} className="text-primary" />,
-      color: 'bg-secondary-500/20',
-    },
-    {
-      label: 'Categories',
-      value: dashStats ? dashStats.totalCategories.toLocaleString() : '—',
-      change: 0,
-      icon: <Tag size={18} className="text-primary" />,
-      color: 'bg-accent-500/20',
+      color: 'bg-emerald-500/20',
     },
     {
       label: 'Total Views',
-      value: dashStats ? dashStats.totalViews.toLocaleString() : '—',
+      value: dashStats ? (dashStats.totalViews || 0).toLocaleString() : '—',
       change: 0,
       icon: <Eye size={18} className="text-primary" />,
-      color: 'bg-green-500/20',
+      color: 'bg-secondary-500/20',
+    },
+    {
+      label: 'Platform Likes',
+      value: dashStats ? (dashStats.totalLikes || 0).toLocaleString() : '—',
+      change: 0,
+      icon: <Heart size={18} className="text-primary" />,
+      color: 'bg-pink-500/20',
     },
   ];
   return (
@@ -522,7 +564,7 @@ const AdminDashboard = () => {
                 {/* Traffic chart */}
                 <div className="lg:col-span-2 glass-card p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-primary">Weekly Traffic</h3>
+                    <h3 className="font-semibold text-primary">Platform Traffic</h3>
                     <span
                       className="badge-green badge text-xs"
                       style={{
@@ -546,13 +588,13 @@ const AdminDashboard = () => {
 
                 {/* Quick stats */}
                 <div className="glass-card p-6">
-                  <h3 className="font-semibold text-primary mb-4">Today</h3>
+                  <h3 className="font-semibold text-primary mb-4">Content Breakdown</h3>
                   <div className="space-y-4">
                     {[
-                      { label: 'New Prompts', value: dashStats?.todayPrompts || 0, color: 'text-indigo-400' },
-                      { label: 'New Users', value: dashStats?.todayUsers || 0, color: 'text-emerald-400' },
-                      { label: 'AI Models', value: dashStats?.totalAIModels || 0, color: 'text-amber-400' },
-                      { label: 'Total Copies', value: dashStats?.totalCopies?.toLocaleString() || 0, color: 'text-yellow-400' },
+                      { label: 'Visual Prompts', value: dashStats?.totalVisuals || 0, color: 'text-indigo-400' },
+                      { label: 'Workflow Systems', value: dashStats?.totalWorkflows || 0, color: 'text-emerald-400' },
+                      { label: 'Total Copies', value: dashStats?.totalCopies?.toLocaleString() || 0, color: 'text-amber-400' },
+                      { label: 'Total Likes', value: dashStats?.totalLikes?.toLocaleString() || 0, color: 'text-rose-400' },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between">
                         <span className="text-primary/50 text-sm">{item.label}</span>
@@ -563,115 +605,129 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Recent prompts table */}
-              <div className="glass-card overflow-hidden">
-                <div className="p-6 border-b border-primary/5">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-primary">Recent Uploads</h3>
-                    <button
-                      onClick={() => setActive('prompts')}
-                      className="text-xs text-primary/60 hover:text-primary transition-colors"
-                    >
-                      View All
-                    </button>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Recent Visuals */}
+                <div className="glass-card overflow-hidden">
+                  <div className="p-6 border-b border-primary/5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-primary">Recent Visuals</h3>
+                      <button
+                        onClick={() => setActive('manage_visuals')}
+                        className="text-xs text-primary/60 hover:text-primary transition-colors"
+                      >
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-primary/5">
+                          {['Visual', 'Views', 'Copies', ''].map((h) => (
+                            <th
+                              key={h}
+                              className="text-left px-6 py-3 text-[10px] font-semibold text-primary/30 uppercase tracking-widest"
+                            >
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {isLoading ? (
+                          <tr><td colSpan="3" className="px-6 py-4 text-center text-xs opacity-50">Loading...</td></tr>
+                        ) : (
+                          recentVisuals.map((prompt) => (
+                            <tr key={prompt._id} className="border-b border-primary/5 hover:bg-primary/2 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <img src={prompt.previewImage} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                                  <span className="text-xs text-primary/80 font-medium line-clamp-1">{prompt.title}</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-xs text-primary/60">{(prompt.views || 0).toLocaleString()}</td>
+                              <td className="px-6 py-4 text-xs text-primary/60">{(prompt.copies || 0).toLocaleString()}</td>
+                              <td className="px-6 py-4 text-right">
+                                <button onClick={() => handleDelete(prompt._id)} className="text-primary/20 hover:text-red-400 transition-colors">
+                                  <Trash2 size={12} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-primary/5">
-                        {['Prompt', 'Category', 'Type', 'Copies', 'Likes', 'Date', ''].map((h) => (
-                          <th
-                            key={h}
-                            className="text-left px-6 py-3 text-xs font-semibold text-primary/30 uppercase tracking-widest"
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {isLoading ? (
-                        <tr>
-                          <td colSpan="7" className="px-6 py-4 text-center text-primary/50">
-                            Loading...
-                          </td>
+
+                {/* Recent Workflows */}
+                <div className="glass-card overflow-hidden">
+                  <div className="p-6 border-b border-primary/5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-primary">Recent Workflows</h3>
+                      <button
+                        onClick={() => setActive('manage_workflows')}
+                        className="text-xs text-primary/60 hover:text-primary transition-colors"
+                      >
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-primary/5">
+                          {['System', 'Views', 'Category', ''].map((h) => (
+                            <th
+                              key={h}
+                              className="text-left px-6 py-3 text-[10px] font-semibold text-primary/30 uppercase tracking-widest"
+                            >
+                              {h}
+                            </th>
+                          ))}
                         </tr>
-                      ) : (
-                        recentPrompts.map((prompt) => (
-                          <tr
-                            key={prompt._id || prompt.id}
-                            className="border-b border-primary/5 hover:bg-primary/2 transition-colors"
-                          >
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={prompt.previewImage}
-                                  alt=""
-                                  className="w-9 h-9 rounded-lg object-cover flex-shrink-0"
-                                />
-                                <span className="text-sm text-primary/80 font-medium line-clamp-1 max-w-[160px]">
-                                  {prompt.title}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="badge-purple badge text-xs">
-                                {prompt.category || prompt.categoryName}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={`badge text-xs ${prompt.type === 'video' ? 'badge-pink' : 'badge-cyan'}`}
-                              >
-                                {prompt.type}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-primary/60">
-                              {(prompt.copies || 0).toLocaleString()}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-primary/60">
-                              {(prompt.likes || 0).toLocaleString()}
-                            </td>
-                            <td className="px-6 py-4 text-xs text-primary/30">
-                              {new Date(prompt.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 flex gap-2">
-                              <Link
-                                to={`/admin/prompt/${prompt._id || prompt.id}/edit`}
-                                className="p-1.5 rounded-lg hover:bg-primary/5 text-primary/40 hover:text-primary transition-all"
-                              >
-                                <Edit2 size={14} />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(prompt._id || prompt.id)}
-                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-primary/40 hover:text-red-400 transition-all"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {isLoading ? (
+                          <tr><td colSpan="3" className="px-6 py-4 text-center text-xs opacity-50">Loading...</td></tr>
+                        ) : (
+                          recentWorkflows.map((prompt) => (
+                            <tr key={prompt._id} className="border-b border-primary/5 hover:bg-primary/2 transition-colors">
+                              <td className="px-6 py-4">
+                                <span className="text-xs text-primary/80 font-medium line-clamp-1">{prompt.title}</span>
+                              </td>
+                              <td className="px-6 py-4 text-xs text-primary/60">{(prompt.views || 0).toLocaleString()}</td>
+                              <td className="px-6 py-4">
+                                <span className="text-[10px] font-bold text-primary/40 uppercase tracking-wider">{prompt.workflowCategory}</span>
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <button onClick={() => handleDelete(prompt._id)} className="text-primary/20 hover:text-red-400 transition-colors">
+                                  <Trash2 size={12} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {active === 'prompts' && (
+          {active === 'manage_visuals' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-6xl">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl font-display font-bold text-primary">Manage Prompts</h2>
-                  <p className="text-primary/50 text-sm">View, edit, or delete all prompts</p>
+                  <h2 className="text-xl font-display font-bold text-primary">Manage Visuals</h2>
+                  <p className="text-primary/50 text-sm">View, edit, or delete AI image/video templates</p>
                 </div>
                 <button
-                  onClick={() => setActive('upload')}
+                  onClick={() => setActive('upload_visual')}
                   className="btn-primary py-2 px-4 text-sm"
                 >
-                  <Upload size={14} /> Upload Prompt
+                  <Upload size={14} /> Upload Visual
                 </button>
               </div>
 
@@ -680,7 +736,7 @@ const AdminDashboard = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-primary/5">
-                        {['Prompt', 'Category', 'Type', 'Copies', 'Likes', 'Date', ''].map((h) => (
+                        {['Visual', 'Category', 'Type', 'Views', 'Copies', 'Likes', 'Date', ''].map((h) => (
                           <th
                             key={h}
                             className="text-left px-6 py-3 text-xs font-semibold text-primary/30 uppercase tracking-widest"
@@ -692,17 +748,9 @@ const AdminDashboard = () => {
                     </thead>
                     <tbody>
                       {isLoading ? (
-                        <tr>
-                          <td colSpan="7" className="px-6 py-4 text-center text-primary/50">
-                            Loading...
-                          </td>
-                        </tr>
+                        <tr><td colSpan="7" className="px-6 py-4 text-center text-primary/50">Loading...</td></tr>
                       ) : allPrompts.length === 0 ? (
-                        <tr>
-                          <td colSpan="7" className="px-6 py-4 text-center text-primary/50">
-                            No prompts found.
-                          </td>
-                        </tr>
+                        <tr><td colSpan="7" className="px-6 py-4 text-center text-primary/50">No visuals found.</td></tr>
                       ) : (
                         allPrompts.map((prompt) => (
                           <tr
@@ -734,10 +782,13 @@ const AdminDashboard = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4 text-sm text-primary/60">
+                              {(prompt.views || 0).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-primary/60">
                               {(prompt.copies || 0).toLocaleString()}
                             </td>
                             <td className="px-6 py-4 text-sm text-primary/60">
-                              {(prompt.likes || 0).toLocaleString()}
+                              {(prompt.likesCount || prompt.likes || 0).toLocaleString()}
                             </td>
                             <td className="px-6 py-4 text-xs text-primary/30">
                               {new Date(prompt.createdAt).toLocaleDateString()}
@@ -765,7 +816,7 @@ const AdminDashboard = () => {
                 {promptsTotalPages > 1 && (
                   <div className="p-4 border-t border-primary/5 flex justify-center gap-2">
                     <button
-                      onClick={() => fetchPromptsList(promptsPage - 1)}
+                      onClick={() => fetchPromptsList(promptsPage - 1, 'visual')}
                       disabled={promptsPage === 1}
                       className="px-3 py-1 bg-primary/5 rounded-lg text-sm text-primary/60 disabled:opacity-30"
                     >
@@ -775,7 +826,7 @@ const AdminDashboard = () => {
                       Page {promptsPage} of {promptsTotalPages}
                     </span>
                     <button
-                      onClick={() => fetchPromptsList(promptsPage + 1)}
+                      onClick={() => fetchPromptsList(promptsPage + 1, 'visual')}
                       disabled={promptsPage === promptsTotalPages}
                       className="px-3 py-1 bg-primary/5 rounded-lg text-sm text-primary/60 disabled:opacity-30"
                     >
@@ -787,191 +838,366 @@ const AdminDashboard = () => {
             </motion.div>
           )}
 
-          {active === 'upload' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl">
-              <p className="text-primary/50 mb-8">Upload a new prompt to the platform</p>
-              <div className="space-y-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Drag drop zone */}
-                  <div className="relative border-2 border-dashed border-primary/15 rounded-2xl p-12 text-center hover:border-primary-500/40 transition-colors cursor-pointer group">
+          {active === 'manage_workflows' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-6xl">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl font-display font-bold text-primary">Manage Workflows</h2>
+                  <p className="text-primary/50 text-sm">Organize and refine structured AI templates</p>
+                </div>
+                <button
+                  onClick={() => setActive('upload_workflow')}
+                  className="btn-primary py-2 px-4 text-sm bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                >
+                  <Zap size={14} /> Upload Workflow
+                </button>
+              </div>
+
+              <div className="glass-card overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-primary/5">
+                        {['Workflow', 'Domain', 'Views', 'Copies', 'Likes', 'Date', ''].map((h) => (
+                          <th
+                            key={h}
+                            className="text-left px-6 py-3 text-xs font-semibold text-primary/30 uppercase tracking-widest"
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {isLoading ? (
+                        <tr><td colSpan="7" className="px-6 py-4 text-center text-primary/50">Loading...</td></tr>
+                      ) : allPrompts.length === 0 ? (
+                        <tr><td colSpan="7" className="px-6 py-4 text-center text-primary/50">No workflows found.</td></tr>
+                      ) : (
+                        allPrompts.map((prompt) => (
+                          <tr
+                            key={prompt._id || prompt.id}
+                            className="border-b border-primary/5 hover:bg-primary/2 transition-colors"
+                          >
+                            <td className="px-6 py-4">
+                              <span className="text-sm text-primary/80 font-medium line-clamp-1 max-w-[200px]">
+                                {prompt.title}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-[10px] font-bold text-primary/40 uppercase tracking-[0.15em]">
+                                {prompt.workflowCategory}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-wrap gap-1">
+                                {prompt.workflowTools?.slice(0, 2).map(t => (
+                                  <span key={t} className="px-1.5 py-0.5 rounded-md bg-primary/[0.03] text-[9px] text-primary/40 border border-primary/5">
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-primary/60">
+                              {(prompt.views || 0).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-primary/60">
+                              {(prompt.copies || 0).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-primary/60">
+                              {(prompt.likesCount || prompt.likes || 0).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-xs text-primary/30">
+                              {new Date(prompt.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 flex gap-2">
+                              <Link
+                                to={`/admin/prompt/${prompt._id || prompt.id}/edit`}
+                                className="p-1.5 rounded-lg hover:bg-primary/5 text-primary/40 hover:text-primary transition-all"
+                              >
+                                <Edit2 size={14} />
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(prompt._id || prompt.id, true)}
+                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-primary/40 hover:text-red-400 transition-all"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {promptsTotalPages > 1 && (
+                  <div className="p-4 border-t border-primary/5 flex justify-center gap-2">
+                    <button
+                      onClick={() => fetchPromptsList(promptsPage - 1, 'workflow')}
+                      disabled={promptsPage === 1}
+                      className="px-3 py-1 bg-primary/5 rounded-lg text-sm text-primary/60 disabled:opacity-30"
+                    >
+                      Prev
+                    </button>
+                    <span className="px-3 py-1 text-sm text-primary/60">
+                      Page {promptsPage} of {promptsTotalPages}
+                    </span>
+                    <button
+                      onClick={() => fetchPromptsList(promptsPage + 1, 'workflow')}
+                      disabled={promptsPage === promptsTotalPages}
+                      className="px-3 py-1 bg-primary/5 rounded-lg text-sm text-primary/60 disabled:opacity-30"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {active === 'upload_visual' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl">
+              <div className="mb-10">
+                <h2 className="text-2xl font-display font-bold text-primary">Upload Visual Prompt</h2>
+                <p className="text-primary/50 text-sm">Publish high-fidelity AI image or video templates</p>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Media Upload Section */}
+                <div className="glass-card p-2 rounded-[2rem] border border-primary/5">
+                  <div className="relative h-64 md:h-80 border-2 border-dashed border-primary/10 rounded-[1.8rem] flex flex-col items-center justify-center hover:border-primary/20 transition-all cursor-pointer bg-primary/[0.01] overflow-hidden group">
                     <input
                       type="file"
                       required
                       onChange={handleUploadChange}
                       accept="image/*,video/*"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <div className="w-12 h-12 rounded-2xl bg-primary-500/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-500/20 transition-colors">
-                      <Upload size={22} className="text-primary-400" />
-                    </div>
-                    <p className="font-semibold text-primary text-sm mb-1">
-                      {mediaFile ? mediaFile.name : 'Drag & drop preview image or video'}
-                    </p>
-                    <p className="text-xs text-primary/30">PNG, JPG, MP4 up to 100MB</p>
+                    
+                    {mediaFile ? (
+                      <div className="text-center px-6">
+                        <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto mb-4 border border-primary/5">
+                          <Eye size={24} className="text-primary/40" />
+                        </div>
+                        <p className="text-sm font-semibold text-primary mb-1 truncate max-w-xs">{mediaFile.name}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-primary/30">Ready to upload • {(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto mb-4 border border-primary/5 group-hover:scale-110 transition-transform duration-500">
+                          <Upload size={24} className="text-primary/40" />
+                        </div>
+                        <p className="text-sm font-semibold text-primary mb-1">Select visual media</p>
+                        <p className="text-[10px] uppercase tracking-widest text-primary/30">Images or Videos up to 100MB</p>
+                      </div>
+                    )}
                   </div>
+                </div>
 
-                  {/* Form fields */}
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
                     <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        Prompt Title
-                      </label>
-                      <input
-                        required
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="input-minimal"
-                        placeholder="e.g. Cyberpunk Neon City at Night"
-                      />
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Basic Info</label>
+                      <div className="space-y-4">
+                        <input
+                          required
+                          value={formData.title}
+                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                          className="input-minimal bg-primary/[0.02]"
+                          placeholder="Visual Title"
+                        />
+                        <textarea
+                          required
+                          value={formData.promptText}
+                          onChange={(e) => setFormData({ ...formData, promptText: e.target.value })}
+                          className="input-minimal bg-primary/[0.02] min-h-[140px] font-mono text-xs leading-relaxed"
+                          placeholder="Full Prompt Text..."
+                        />
+                        <textarea
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          className="input-minimal bg-primary/[0.02] min-h-[80px] text-sm"
+                          placeholder="Editorial Description (Optional)"
+                        />
+                      </div>
                     </div>
+
                     <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        Prompt Text
-                      </label>
-                      <textarea
-                        required
-                        value={formData.promptText}
-                        onChange={(e) => setFormData({ ...formData, promptText: e.target.value })}
-                        className="input-minimal min-h-[120px] resize-y font-mono text-sm"
-                        placeholder="Enter the full prompt text..."
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        Description (optional)
-                      </label>
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="input-minimal min-h-[80px] resize-y text-sm"
-                        placeholder="Brief description of what this prompt creates..."
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        Customization Notes (optional)
-                      </label>
-                      <textarea
-                        value={formData.customizationNotes}
-                        onChange={(e) => setFormData({ ...formData, customizationNotes: e.target.value })}
-                        className="input-minimal min-h-[80px] resize-y text-sm"
-                        placeholder="Example: &#10;- Change gender&#10;- North Indian style&#10;- Anime version&#10;- Add cinematic rain"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                          Category
-                        </label>
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Classification</label>
+                      <div className="grid grid-cols-2 gap-4">
                         <select
                           required
                           value={formData.category}
                           onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                          className="input-minimal"
+                          className="input-minimal bg-primary/[0.02]"
                         >
-                          {categories.length === 0 ? (
-                            <option value="">No categories available</option>
-                          ) : (
-                            categories.map((c) => (
-                              <option key={c._id} value={c.name}>
-                                {c.name}
-                              </option>
-                            ))
-                          )}
+                          {categories.map((c) => <option key={c._id} value={c.name}>{c.name}</option>)}
                         </select>
-                      </div>
-                      <div>
-                        <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                          Type
-                        </label>
                         <select
                           required
                           value={formData.type}
                           onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                          className="input-minimal"
+                          className="input-minimal bg-primary/[0.02]"
                         >
-                          <option value="image">Image Prompt</option>
-                          <option value="video">Video Prompt</option>
+                          <option value="image">Image</option>
+                          <option value="video">Video</option>
                         </select>
                       </div>
                     </div>
-                    <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        Tags (comma separated)
-                      </label>
-                      <input
-                        required
-                        value={formData.tags}
-                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                        className="input-minimal"
-                        placeholder="cyberpunk, neon, cinematic, rain"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
-                        AI Model
-                      </label>
-                      <select
-                        required
-                        value={formData.aiModel}
-                        onChange={(e) => setFormData({ ...formData, aiModel: e.target.value })}
-                        className="input-minimal"
-                      >
-                        {aiModels.length === 0 ? (
-                          <option value="">No models available</option>
-                        ) : (
-                          aiModels.map((m) => (
-                            <option key={m._id} value={m.name}>
-                              {m.name}
-                            </option>
-                          ))
-                        )}
-                      </select>
-                    </div>
+                  </div>
 
-                    {/* Generation Config */}
+                  <div className="space-y-6">
                     <div>
-                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-3 block">
-                        Generation Config (optional)
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          { key: 'aspectRatio', label: 'Aspect Ratio', placeholder: 'e.g. 16:9' },
-                          { key: 'chaos', label: 'Chaos', placeholder: 'e.g. Low' },
-                          { key: 'quality', label: 'Quality', placeholder: 'e.g. Max' },
-                          { key: 'style', label: 'Style', placeholder: 'e.g. Raw' },
-                        ].map(({ key, label, placeholder }) => (
-                          <div key={key}>
-                            <label className="text-[10px] text-primary/40 uppercase tracking-wider mb-1 block">{label}</label>
-                            <input
-                              value={formData.config[key]}
-                              onChange={(e) => setFormData({
-                                ...formData,
-                                config: { ...formData.config, [key]: e.target.value }
-                              })}
-                              className="input-minimal text-sm"
-                              placeholder={placeholder}
-                            />
-                          </div>
-                        ))}
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Configuration</label>
+                      <div className="space-y-4">
+                        <select
+                          required
+                          value={formData.aiModel}
+                          onChange={(e) => setFormData({ ...formData, aiModel: e.target.value })}
+                          className="input-minimal bg-primary/[0.02]"
+                        >
+                          {aiModels.map((m) => <option key={m._id} value={m.name}>{m.name}</option>)}
+                        </select>
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            value={formData.config.aspectRatio}
+                            onChange={(e) => setFormData({ ...formData, config: { ...formData.config, aspectRatio: e.target.value } })}
+                            className="input-minimal bg-primary/[0.02] text-xs"
+                            placeholder="Aspect Ratio"
+                          />
+                          <input
+                            value={formData.config.chaos}
+                            onChange={(e) => setFormData({ ...formData, config: { ...formData.config, chaos: e.target.value } })}
+                            className="input-minimal bg-primary/[0.02] text-xs"
+                            placeholder="Chaos"
+                          />
+                        </div>
                       </div>
                     </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Metadata</label>
+                      <div className="space-y-4">
+                        <input
+                          required
+                          value={formData.tags}
+                          onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                          className="input-minimal bg-primary/[0.02]"
+                          placeholder="Tags (comma separated)"
+                        />
+                        <textarea
+                          value={formData.customizationNotes}
+                          onChange={(e) => setFormData({ ...formData, customizationNotes: e.target.value })}
+                          className="input-minimal bg-primary/[0.02] min-h-[100px] text-xs"
+                          placeholder="Customization Ideas..."
+                        />
+                      </div>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={isUploading}
-                      className="btn-primary w-full justify-center py-4 text-base disabled:opacity-50"
+                      className="btn-primary w-full justify-center py-4 rounded-2xl shadow-xl shadow-primary/10"
                     >
-                      {isUploading ? (
-                        'Publishing...'
-                      ) : (
-                        <>
-                          <Upload size={18} /> Publish Prompt
-                        </>
-                      )}
+                      {isUploading ? 'Publishing...' : <><Upload size={18} /> Publish Visual</>}
                     </button>
                   </div>
-                </form>
+                </div>
+              </form>
+            </motion.div>
+          )}
+
+          {active === 'upload_workflow' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl">
+              <div className="mb-10">
+                <h2 className="text-2xl font-display font-bold text-primary">Upload Workflow System</h2>
+                <p className="text-primary/50 text-sm">Publish structured AI utility templates for productivity</p>
               </div>
+
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Structure</label>
+                      <div className="space-y-4">
+                        <input
+                          required
+                          value={formData.title}
+                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5"
+                          placeholder="Workflow Title"
+                        />
+                        <textarea
+                          required
+                          value={formData.promptText}
+                          onChange={(e) => setFormData({ ...formData, promptText: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5 min-h-[180px] font-mono text-[13px] leading-relaxed"
+                          placeholder="Full System Prompt..."
+                        />
+                        <textarea
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5 min-h-[100px] text-sm"
+                          placeholder="Explain how this system works..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Parameters</label>
+                      <div className="space-y-4">
+                        <select
+                          required
+                          value={formData.workflowCategory}
+                          onChange={(e) => setFormData({ ...formData, workflowCategory: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5"
+                        >
+                          <option value="">Select Domain</option>
+                          {['Career', 'Coding', 'Study', 'Business'].map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        </select>
+                        <input
+                          required
+                          value={formData.workflowTools}
+                          onChange={(e) => setFormData({ ...formData, workflowTools: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5"
+                          placeholder="Target Tools (e.g. ChatGPT, Claude)"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.2em] mb-3 block">Details</label>
+                      <div className="space-y-4">
+                        <input
+                          required
+                          value={formData.tags}
+                          onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5"
+                          placeholder="Tags (comma separated)"
+                        />
+                        <textarea
+                          value={formData.customizationNotes}
+                          onChange={(e) => setFormData({ ...formData, customizationNotes: e.target.value })}
+                          className="input-minimal bg-primary/[0.01] border-primary/5 min-h-[120px] text-xs"
+                          placeholder="Mention specific usage notes or variants..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        disabled={isUploading}
+                        className="btn-primary w-full justify-center py-4 rounded-2xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20"
+                      >
+                        {isUploading ? 'Publishing...' : <><Zap size={18} /> Publish Workflow</>}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </motion.div>
           )}
 

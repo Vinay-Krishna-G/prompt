@@ -20,12 +20,14 @@ import {
   Download,
   Calendar,
   CheckCheck,
+  Terminal,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PromptCard from '../components/PromptCard';
+import WorkflowCard from '../components/WorkflowCard';
 import ImageWithPlaceholder from '../components/ImageWithPlaceholder';
 import Loader from '../components/Loader';
-import { getPromptBySlug, getPrompts } from '../services/promptService';
+import { getPromptBySlug, getPrompts, trackCopy } from '../services/promptService';
 import { EASE_PREMIUM } from '../lib/motion';
 
 
@@ -117,23 +119,27 @@ const PromptDetailPage = () => {
   const onCopy = () => {
     handleCopyPrompt(prompt);
     setCopied(true);
+    trackCopy(prompt._id).catch(() => {});
     setTimeout(() => setCopied(false), 2500);
   };
 
   const onRemix = () => {
     handleRemixPrompt(prompt);
     setRemixCopied(true);
+    trackCopy(prompt._id).catch(() => {});
     setTimeout(() => setRemixCopied(false), 2500);
   };
 
+  const isWorkflow = prompt.promptType === 'workflow';
+
   return (
-    <div className="min-h-screen pt-24 pb-28 md:pt-28 md:pb-32 bg-background relative overflow-hidden px-px">
+    <div className={`min-h-screen pt-24 pb-28 md:pt-28 md:pb-32 bg-background relative overflow-hidden px-px ${isWorkflow ? 'workflow-view' : ''}`}>
       {/* Background Atmosphere - Refined for smoother transition */}
-      <div className="absolute top-0 inset-x-0 h-[min(85vh,920px)] pointer-events-none z-0 overflow-hidden opacity-30">
+      <div className={`absolute top-0 inset-x-0 h-[min(85vh,920px)] pointer-events-none z-0 overflow-hidden ${isWorkflow ? 'opacity-10' : 'opacity-30'}`}>
         <img
-          src={prompt.previewImage}
+          src={prompt.previewImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'}
           alt=""
-          className="w-full h-full object-cover blur-[110px] scale-110"
+          className={`w-full h-full object-cover blur-[110px] scale-110 ${isWorkflow ? 'grayscale' : ''}`}
         />
         {/* Layered gradients for deep cinematic blend */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/60 to-background" />
@@ -153,107 +159,109 @@ const PromptDetailPage = () => {
           Back
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-20 items-start">
-          <div className="lg:col-span-7 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.72, ease: EASE_PREMIUM }}
-              className="relative group flex items-center justify-center min-h-[400px]"
-            >
-              {prompt.type === 'video' ? (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <div className="relative w-fit h-fit rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated flex items-center justify-center">
-                    {prompt.previewVideo ? (
-                      <video
-                        src={prompt.previewVideo}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        onLoadedData={() => setHeroLoaded(true)}
-                        className="w-full h-auto max-h-[60vh] md:max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
-                      />
-                    ) : (
+        <div className={`grid grid-cols-1 gap-14 lg:gap-20 items-start ${isWorkflow ? 'max-w-4xl mx-auto' : 'lg:grid-cols-12'}`}>
+          {!isWorkflow && (
+            <div className="lg:col-span-7 space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.72, ease: EASE_PREMIUM }}
+                className="relative group flex items-center justify-center min-h-[400px]"
+              >
+                {prompt.type === 'video' ? (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <div className="relative w-fit h-fit rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated flex items-center justify-center">
+                      {prompt.previewVideo ? (
+                        <video
+                          src={prompt.previewVideo}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          onLoadedData={() => setHeroLoaded(true)}
+                          className="w-full h-auto max-h-[60vh] md:max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
+                        />
+                      ) : (
+                        <ImageWithPlaceholder
+                          src={prompt.previewImage}
+                          alt={prompt.title}
+                          dominantColor={dominantColor}
+                          onLoad={() => setHeroLoaded(true)}
+                          className="w-full h-auto max-h-[60vh] md:max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
+                        />
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/20 group-hover:bg-background/8 transition-colors duration-500 ease-premium pointer-events-none">
+                        <div className="w-20 h-20 rounded-full bg-background/35 backdrop-blur-md border border-primary/15 flex items-center justify-center text-primary transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
+                          <Play size={32} className="ml-2 fill-current" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative w-full flex items-center justify-center">
+                    <div className="relative w-fit h-fit rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated">
                       <ImageWithPlaceholder
                         src={prompt.previewImage}
                         alt={prompt.title}
                         dominantColor={dominantColor}
                         onLoad={() => setHeroLoaded(true)}
-                        className="w-full h-auto max-h-[60vh] md:max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
+                        className={`w-full h-auto object-contain max-h-[60vh] md:max-h-[min(82vh,1000px)] transition-transform duration-[800ms] ease-premium ${
+                          heroLoaded ? 'group-hover:scale-[1.005]' : ''
+                        }`}
                       />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-background/20 group-hover:bg-background/8 transition-colors duration-500 ease-premium pointer-events-none">
-                      <div className="w-20 h-20 rounded-full bg-background/35 backdrop-blur-md border border-primary/15 flex items-center justify-center text-primary transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
-                        <Play size={32} className="ml-2 fill-current" />
-                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="relative w-full flex items-center justify-center">
-                  <div className="relative w-fit h-fit rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated">
-                    <ImageWithPlaceholder
-                      src={prompt.previewImage}
-                      alt={prompt.title}
-                      dominantColor={dominantColor}
-                      onLoad={() => setHeroLoaded(true)}
-                      className={`w-full h-auto object-contain max-h-[60vh] md:max-h-[min(82vh,1000px)] transition-transform duration-[800ms] ease-premium ${
-                        heroLoaded ? 'group-hover:scale-[1.005]' : ''
-                      }`}
-                    />
-                  </div>
-                </div>
-              )}
-            </motion.div>
+                )}
+              </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15, duration: 0.65, ease: EASE_PREMIUM }}
-              className="flex flex-wrap items-center gap-2 justify-between px-0.5"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-wider border"
-                  style={{
-                    backgroundColor: 'rgba(var(--text-primary) / 0.06)',
-                    borderColor: 'rgba(var(--border-color) / 0.1)',
-                    color: 'rgba(var(--text-primary) / 0.85)',
-                  }}
-                >
-                  <Disc size={11} className="opacity-50" />
-                  {prompt.aiModel}
-                </span>
-                {prompt.tags.slice(0, 4).map((tag) => (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15, duration: 0.65, ease: EASE_PREMIUM }}
+                className="flex flex-wrap items-center gap-2 justify-between px-0.5"
+              >
+                <div className="flex flex-wrap items-center gap-2">
                   <span
-                    key={tag}
-                    className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-[rgba(var(--text-primary)/0.55)]"
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-wider border"
+                    style={{
+                      backgroundColor: 'rgba(var(--text-primary) / 0.06)',
+                      borderColor: 'rgba(var(--border-color) / 0.1)',
+                      color: 'rgba(var(--text-primary) / 0.85)',
+                    }}
                   >
-                    #{tag}
+                    <Disc size={11} className="opacity-50" />
+                    {prompt.aiModel}
                   </span>
-                ))}
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  className="p-2.5 rounded-full text-muted hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
-                  aria-label="Share"
-                >
-                  <Share2 size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="p-2.5 rounded-full text-muted hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
-                  aria-label="Download"
-                >
-                  <Download size={16} />
-                </button>
-              </div>
-            </motion.div>
-          </div>
+                  {prompt.tags.slice(0, 4).map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-[rgba(var(--text-primary)/0.55)]"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    className="p-2.5 rounded-full text-muted hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                    aria-label="Share"
+                  >
+                    <Share2 size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="p-2.5 rounded-full text-muted hover:bg-primary/[0.06] hover:text-primary transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.35)]"
+                    aria-label="Download"
+                  >
+                    <Download size={16} />
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
-          <div className="lg:col-span-5">
+          <div className={`${isWorkflow ? '' : 'lg:col-span-5'}`}>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -280,7 +288,7 @@ const PromptDetailPage = () => {
                       {prompt.creator?.name || 'Unknown'}
                     </p>
                     <p className="text-[11px] text-muted uppercase tracking-widest font-medium mt-0.5">
-                      {prompt.category || prompt.categoryName}
+                      {isWorkflow ? prompt.workflowCategory : (prompt.category || prompt.categoryName)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -307,41 +315,62 @@ const PromptDetailPage = () => {
                   </div>
                 </div>
 
-                <h1 className="heading-cinematic text-3xl md:text-[2.5rem] font-semibold leading-[1.15] mb-5 tracking-[-0.02em]">
+                <h1 className={`heading-cinematic font-semibold leading-[1.15] mb-5 tracking-[-0.02em] ${isWorkflow ? 'text-4xl md:text-6xl' : 'text-3xl md:text-[2.5rem]'}`}>
                   {prompt.title}
                 </h1>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {isWorkflow && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest bg-primary/5 text-primary border border-primary/5">
+                      {prompt.workflowCategory}
+                    </span>
+                  )}
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-muted">
                     <Calendar size={11} />
                     {new Date(prompt.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-muted">
-                    {prompt.type === 'video' ? 'Video template' : 'Image template'}
-                  </span>
+                  {!isWorkflow && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] border border-primary/[0.06] text-muted">
+                      {prompt.type === 'video' ? 'Video template' : 'Image template'}
+                    </span>
+                  )}
                 </div>
                 {prompt.description && (
                   <p
-                    className="text-[15px] leading-[1.65] md:leading-relaxed"
-                    style={{ color: 'rgba(var(--text-primary) / 0.52)' }}
+                    className={`leading-[1.65] md:leading-relaxed ${isWorkflow ? 'text-lg md:text-xl opacity-70' : 'text-[15px] opacity-50'}`}
+                    style={{ color: 'rgb(var(--text-primary))' }}
                   >
                     {prompt.description}
                   </p>
+                )}
+
+                {isWorkflow && prompt.workflowTools && prompt.workflowTools.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-8">
+                    {prompt.workflowTools.map((tool) => (
+                      <span 
+                        key={tool}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/[0.03] border border-primary/[0.05] text-[12px] font-medium text-primary/60"
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
 
               <div className="mb-10 md:mb-12">
                 <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted flex items-center gap-2 mb-4">
-                  <Disc size={12} className="opacity-45" /> Core template
+                  <Terminal size={12} className="opacity-45" /> {isWorkflow ? 'Workflow template' : 'Core template'}
                 </h3>
-                <div className="relative group syntax-box-minimal bg-elevated text-primary p-5 md:p-7 leading-[1.7] border border-primary/[0.05] rounded-2xl font-mono text-[13px] selection:bg-primary/10">
-                  <div className="mb-28 md:mb-28 select-all opacity-90 pr-2">
+                <div className="relative group syntax-box-minimal bg-elevated text-primary p-6 md:p-8 leading-[1.8] border border-primary/[0.05] rounded-3xl font-mono text-[14px] md:text-[15px] selection:bg-primary/10 shadow-sm">
+                  <div className="mb-28 md:mb-28 select-all opacity-90 pr-2 whitespace-pre-wrap">
                     {prompt.promptText || prompt.prompt}
                   </div>
-                  <div className="absolute bottom-4 right-4 left-4 flex flex-col sm:flex-row gap-2 justify-end">
+                  <div className="absolute bottom-6 right-6 left-6 flex flex-col sm:flex-row gap-2 justify-end">
                     <button
                       type="button"
                       onClick={onRemix}
-                      className={`inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[13px] font-medium border transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)] ${
+                      className={`inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-[13px] font-medium border transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)] ${
                         remixCopied
                           ? 'border-emerald-500/25 text-emerald-400 bg-emerald-500/10'
                           : 'border-primary/[0.1] text-primary/90 bg-primary/[0.04] hover:bg-primary/[0.07] hover:border-primary/[0.14]'
@@ -352,19 +381,19 @@ const PromptDetailPage = () => {
                       ) : (
                         <Shuffle size={15} className="opacity-80" />
                       )}
-                      {remixCopied ? 'Remix copied' : 'Remix prompt'}
+                      {remixCopied ? 'Remix copied' : 'Remix system'}
                     </button>
                     <button
                       type="button"
                       onClick={onCopy}
-                      className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-[13px] font-medium transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
+                      className={`inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-[13px] font-medium transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
                         copied
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : 'bg-primary text-background hover:opacity-90 border border-transparent'
                       }`}
                     >
                       {copied ? <CheckCheck size={15} /> : <Copy size={15} />}
-                      {copied ? 'Copied' : 'Copy prompt'}
+                      {copied ? 'Copied' : 'Copy system'}
                     </button>
                   </div>
                 </div>
@@ -375,15 +404,15 @@ const PromptDetailPage = () => {
                   <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted flex items-center gap-2 mb-4">
                     <Sparkles size={12} className="opacity-45" /> Customization Notes
                   </h3>
-                  <div className="glass-card p-6 md:p-7 border border-primary/[0.05] rounded-2xl">
-                    <div className="text-[14px] leading-relaxed whitespace-pre-wrap opacity-80" style={{ color: 'rgba(var(--text-primary) / 0.8)' }}>
+                  <div className="glass-card p-6 md:p-8 border border-primary/[0.05] rounded-3xl">
+                    <div className="text-[15px] leading-relaxed whitespace-pre-wrap opacity-80" style={{ color: 'rgba(var(--text-primary) / 0.8)' }}>
                       {prompt.customizationNotes}
                     </div>
                   </div>
                 </div>
               )}
 
-              {paramsEntries.length > 0 && (
+              {!isWorkflow && paramsEntries.length > 0 && (
                 <div
                   className="rounded-2xl border p-6 md:p-7"
                   style={{
@@ -419,13 +448,17 @@ const PromptDetailPage = () => {
         <div className="mt-28 md:mt-36 border-t border-primary/[0.04] pt-16 md:pt-20">
           <div className="flex items-baseline justify-between mb-12 md:mb-14 gap-6">
             <h3 className="heading-cinematic text-2xl md:text-[1.65rem] font-medium tracking-[-0.02em]">
-              Similar works
+              Similar {isWorkflow ? 'workflows' : 'works'}
             </h3>
             <div className="h-px bg-primary/[0.05] flex-1 max-w-md hidden md:block" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-7">
+          <div className={`grid gap-6 md:gap-7 ${isWorkflow ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}>
             {similarPrompts.map((p, i) => (
-              <PromptCard key={p._id || p.id} prompt={p} index={i} />
+              isWorkflow ? (
+                <WorkflowCard key={p._id || p.id} prompt={p} index={i} />
+              ) : (
+                <PromptCard key={p._id || p.id} prompt={p} index={i} />
+              )
             ))}
           </div>
         </div>

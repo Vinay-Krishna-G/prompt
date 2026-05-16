@@ -61,6 +61,7 @@ const Navbar = () => {
   const links = [
     { to: '/trending', label: 'Trending', icon: <TrendingUp size={14} /> },
     { to: '/videos', label: 'Video', icon: <Video size={14} /> },
+    { to: '/workflows', label: 'Workflows' },
   ];
 
   return (

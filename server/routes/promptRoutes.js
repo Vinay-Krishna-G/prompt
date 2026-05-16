@@ -24,6 +24,7 @@ router.get('/:slug', promptController.getPromptBySlug);
 // Public-facing like/save toggles (require auth, not admin)
 router.post('/:id/like', protect, promptController.toggleLike);
 router.post('/:id/save', protect, promptController.toggleSave);
+router.post('/:id/copy', promptController.trackCopy);
 
 // Original /:id routes retained for delete (admin only)
 router.delete('/:id', protect, admin, promptController.deletePrompt);

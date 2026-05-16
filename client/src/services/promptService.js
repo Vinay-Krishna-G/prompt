@@ -67,3 +67,8 @@ export const getDashboardStats = async () => {
   const { data } = await api.get('/prompts/admin/stats');
   return data.data;
 };
+
+export const trackCopy = async (id) => {
+  const { data } = await api.post(`/prompts/${id}/copy`);
+  return data.data;
+};
