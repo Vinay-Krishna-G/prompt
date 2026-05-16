@@ -147,6 +147,7 @@ const AdminDashboard = () => {
     category: '',
     type: 'image',
     tags: '',
+    customizationNotes: '',
     aiModel: 'Midjourney v6.1',
     config: {
       aspectRatio: '',
@@ -358,6 +359,7 @@ const AdminDashboard = () => {
           .split(',')
           .map((t) => t.trim())
           .filter(Boolean),
+        customizationNotes: formData.customizationNotes || undefined,
         aiModel: formData.aiModel,
         previewImage: isVideo ? assetRes.url.replace(/\.[^/.]+$/, '.jpg') : assetRes.url,
         previewVideo: isVideo ? assetRes.url : undefined,
@@ -378,6 +380,7 @@ const AdminDashboard = () => {
         category: categories[0]?.name || '',
         type: 'image',
         tags: '',
+        customizationNotes: '',
         aiModel: aiModels[0]?.name || 'Midjourney v6.1',
         config: {
           aspectRatio: '',
@@ -842,6 +845,17 @@ const AdminDashboard = () => {
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="input-minimal min-h-[80px] resize-y text-sm"
                         placeholder="Brief description of what this prompt creates..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-primary/50 uppercase tracking-widest mb-2 block">
+                        Customization Notes (optional)
+                      </label>
+                      <textarea
+                        value={formData.customizationNotes}
+                        onChange={(e) => setFormData({ ...formData, customizationNotes: e.target.value })}
+                        className="input-minimal min-h-[80px] resize-y text-sm"
+                        placeholder="Example: &#10;- Change gender&#10;- North Indian style&#10;- Anime version&#10;- Add cinematic rain"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">

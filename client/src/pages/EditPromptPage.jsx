@@ -48,6 +48,7 @@ const EditPromptPage = () => {
           category: data.category ?? '',
           type: data.type ?? 'image',
           tags: (data.tags ?? []).join(', '),
+          customizationNotes: data.customizationNotes ?? '',
           aiModel: data.aiModel ?? '',
           isTrending: data.isTrending ?? false,
           previewImage: data.previewImage ?? '',
@@ -90,6 +91,7 @@ const EditPromptPage = () => {
           .map((t) => t.trim())
           .filter(Boolean),
         aiModel: formData.aiModel,
+        customizationNotes: formData.customizationNotes || undefined,
         isTrending: formData.isTrending,
         previewImage: formData.previewImage || undefined,
         previewVideo: formData.previewVideo || undefined,
@@ -192,6 +194,19 @@ const EditPromptPage = () => {
                 onChange={(e) => set('description', e.target.value)}
                 className="input-minimal min-h-[80px] resize-y text-sm"
                 placeholder="Brief description of what this prompt creates..."
+              />
+            </div>
+
+            {/* Customization Notes */}
+            <div>
+              <label className="text-xs text-muted uppercase tracking-widest mb-2 block">
+                Customization Notes <span className="normal-case opacity-50">(optional)</span>
+              </label>
+              <textarea
+                value={formData.customizationNotes}
+                onChange={(e) => set('customizationNotes', e.target.value)}
+                className="input-minimal min-h-[80px] resize-y text-sm"
+                placeholder="Example: &#10;- Change gender&#10;- North Indian style&#10;- Anime version&#10;- Add cinematic rain"
               />
             </div>
 

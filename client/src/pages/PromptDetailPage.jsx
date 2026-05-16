@@ -369,6 +369,19 @@ const PromptDetailPage = () => {
                   </div>
                 </div>
               </div>
+              
+              {prompt.customizationNotes && (
+                <div className="mb-10 md:mb-12">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted flex items-center gap-2 mb-4">
+                    <Sparkles size={12} className="opacity-45" /> Customization Notes
+                  </h3>
+                  <div className="glass-card p-6 md:p-7 border border-primary/[0.05] rounded-2xl">
+                    <div className="text-[14px] leading-relaxed whitespace-pre-wrap opacity-80" style={{ color: 'rgba(var(--text-primary) / 0.8)' }}>
+                      {prompt.customizationNotes}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {paramsEntries.length > 0 && (
                 <div

@@ -82,6 +82,11 @@ const promptSchema = new mongoose.Schema(
       quality: { type: String, trim: true },
       style: { type: String, trim: true },
     },
+    customizationNotes: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   {
     timestamps: true,
