@@ -127,7 +127,7 @@ const PromptDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-28 md:pt-24 md:pb-32 bg-background relative overflow-hidden">
+    <div className="min-h-screen pt-24 pb-28 md:pt-28 md:pb-32 bg-background relative overflow-hidden px-px">
       {/* Background Atmosphere - Refined for smoother transition */}
       <div className="absolute top-0 inset-x-0 h-[min(85vh,920px)] pointer-events-none z-0 overflow-hidden opacity-30">
         <img
@@ -144,7 +144,7 @@ const PromptDetailPage = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="btn-ghost-minimal mb-10 md:mb-12 pl-0 hover:bg-transparent -ml-2 group"
+          className="btn-ghost-minimal mb-8 md:mb-12 pl-0 hover:bg-transparent -ml-2 group touch-manipulation"
         >
           <ArrowLeft
             size={16}
@@ -159,46 +159,50 @@ const PromptDetailPage = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.72, ease: EASE_PREMIUM }}
-              className="relative rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated group flex items-center justify-center min-h-[400px]"
+              className="relative group flex items-center justify-center min-h-[400px]"
             >
               {prompt.type === 'video' ? (
                 <div className="relative w-full h-full flex items-center justify-center">
-                  {prompt.previewVideo ? (
-                    <video
-                      src={prompt.previewVideo}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      onLoadedData={() => setHeroLoaded(true)}
-                      className="w-full h-auto max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
-                    />
-                  ) : (
+                  <div className="relative w-fit h-fit rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated flex items-center justify-center">
+                    {prompt.previewVideo ? (
+                      <video
+                        src={prompt.previewVideo}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        onLoadedData={() => setHeroLoaded(true)}
+                        className="w-full h-auto max-h-[60vh] md:max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
+                      />
+                    ) : (
+                      <ImageWithPlaceholder
+                        src={prompt.previewImage}
+                        alt={prompt.title}
+                        dominantColor={dominantColor}
+                        onLoad={() => setHeroLoaded(true)}
+                        className="w-full h-auto max-h-[60vh] md:max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
+                      />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/20 group-hover:bg-background/8 transition-colors duration-500 ease-premium pointer-events-none">
+                      <div className="w-20 h-20 rounded-full bg-background/35 backdrop-blur-md border border-primary/15 flex items-center justify-center text-primary transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
+                        <Play size={32} className="ml-2 fill-current" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative w-full flex items-center justify-center">
+                  <div className="relative w-fit h-fit rounded-2xl overflow-hidden border border-primary/[0.04] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.55)] bg-elevated">
                     <ImageWithPlaceholder
                       src={prompt.previewImage}
                       alt={prompt.title}
                       dominantColor={dominantColor}
                       onLoad={() => setHeroLoaded(true)}
-                      className="w-full h-auto max-h-[min(82vh,1000px)] object-contain transition-transform duration-700 ease-premium"
+                      className={`w-full h-auto object-contain max-h-[60vh] md:max-h-[min(82vh,1000px)] transition-transform duration-[800ms] ease-premium ${
+                        heroLoaded ? 'group-hover:scale-[1.005]' : ''
+                      }`}
                     />
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-background/20 group-hover:bg-background/8 transition-colors duration-500 ease-premium pointer-events-none">
-                    <div className="w-20 h-20 rounded-full bg-background/35 backdrop-blur-md border border-primary/15 flex items-center justify-center text-primary transition-transform duration-500 ease-premium group-hover:scale-[1.03] cursor-pointer">
-                      <Play size={32} className="ml-2 fill-current" />
-                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="relative w-full flex items-center justify-center bg-[#050505]/40">
-                  <ImageWithPlaceholder
-                    src={prompt.previewImage}
-                    alt={prompt.title}
-                    dominantColor={dominantColor}
-                    onLoad={() => setHeroLoaded(true)}
-                    className={`w-full h-auto object-contain max-h-[min(82vh,1000px)] transition-transform duration-[800ms] ease-premium ${
-                      heroLoaded ? 'group-hover:scale-[1.005]' : ''
-                    }`}
-                  />
                 </div>
               )}
             </motion.div>
@@ -303,7 +307,7 @@ const PromptDetailPage = () => {
                   </div>
                 </div>
 
-                <h1 className="heading-cinematic text-3xl md:text-[2.5rem] font-semibold leading-[1.12] mb-4 tracking-[-0.02em]">
+                <h1 className="heading-cinematic text-3xl md:text-[2.5rem] font-semibold leading-[1.15] mb-5 tracking-[-0.02em]">
                   {prompt.title}
                 </h1>
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -317,7 +321,7 @@ const PromptDetailPage = () => {
                 </div>
                 {prompt.description && (
                   <p
-                    className="text-[15px] leading-relaxed"
+                    className="text-[15px] leading-[1.65] md:leading-relaxed"
                     style={{ color: 'rgba(var(--text-primary) / 0.52)' }}
                   >
                     {prompt.description}
@@ -329,15 +333,15 @@ const PromptDetailPage = () => {
                 <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted flex items-center gap-2 mb-4">
                   <Disc size={12} className="opacity-45" /> Core template
                 </h3>
-                <div className="relative group syntax-box-minimal bg-elevated text-primary p-6 md:p-7 leading-relaxed border border-primary/[0.05] rounded-2xl font-mono text-[13px] selection:bg-primary/10">
-                  <div className="mb-24 md:mb-28 select-all opacity-90 pr-2">
+                <div className="relative group syntax-box-minimal bg-elevated text-primary p-5 md:p-7 leading-[1.7] border border-primary/[0.05] rounded-2xl font-mono text-[13px] selection:bg-primary/10">
+                  <div className="mb-28 md:mb-28 select-all opacity-90 pr-2">
                     {prompt.promptText || prompt.prompt}
                   </div>
-                  <div className="absolute bottom-4 right-4 left-4 flex flex-wrap gap-2 justify-end">
+                  <div className="absolute bottom-4 right-4 left-4 flex flex-col sm:flex-row gap-2 justify-end">
                     <button
                       type="button"
                       onClick={onRemix}
-                      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)] ${
+                      className={`inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[13px] font-medium border transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.4)] ${
                         remixCopied
                           ? 'border-emerald-500/25 text-emerald-400 bg-emerald-500/10'
                           : 'border-primary/[0.1] text-primary/90 bg-primary/[0.04] hover:bg-primary/[0.07] hover:border-primary/[0.14]'
@@ -353,7 +357,7 @@ const PromptDetailPage = () => {
                     <button
                       type="button"
                       onClick={onCopy}
-                      className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
+                      className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-[13px] font-medium transition-all duration-500 ease-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(var(--accent),0.45)] ${
                         copied
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : 'bg-primary text-background hover:opacity-90 border border-transparent'
